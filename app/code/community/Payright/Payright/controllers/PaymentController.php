@@ -51,6 +51,10 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
             $layoutDataString = implode(", ", $layoutData);
 
+            // Clear session values.
+            Mage::getSingleton('customer/session')->unsPayrightAccessToken();
+            Mage::getSingleton('customer/session')->unsPayrightRefereshToken();
+
             $this->loadLayout();
             $block = $this->getLayout()->createBlock('Mage_Core_Block_Template', 'payright',
                 array('template' => 'payright/redirect.phtml'))

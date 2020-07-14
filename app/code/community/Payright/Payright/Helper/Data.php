@@ -12,8 +12,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $apiURL = "oauth/token";
 
-        $existingPayrightAccessToken  = Mage::getSingleton('core/session')->getPayrightAccessToken();
-        $existingPayrightRefreshToken = Mage::getSingleton('core/session')->getPayrightRefereshToken();
+        $existingPayrightAccessToken  = Mage::getSingleton('customer/session')->getPayrightAccessToken();
+        $existingPayrightRefreshToken = Mage::getSingleton('customer/session')->getPayrightRefereshToken();
 
         if (empty($existingPayrightAccessToken) && empty($existingPayrightRefreshToken)) {
             $data = array(
@@ -33,8 +33,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
                     $payrightAccessToken  = $response['access_token'];
                     $payrightRefreshToken = $response['refresh_token'];
 
-                    Mage::getSingleton('core/session')->setPayrightAccessToken($payrightAccessToken);
-                    Mage::getSingleton('core/session')->setPayrightRefereshToken($payrightRefreshToken);
+                    Mage::getSingleton('customer/session')->setPayrightAccessToken($payrightAccessToken);
+                    Mage::getSingleton('customer/session')->setPayrightRefereshToken($payrightRefreshToken);
 
                     $reponseArray['payrightAccessToken']  = $payrightAccessToken;
                     $reponseArray['payrightRefreshToken'] = $payrightRefreshToken;
