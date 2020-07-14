@@ -19,27 +19,22 @@ class Payright_Payright_Model_Observer
 
     public function disablePayright($observer)
     {
-        $event             = $observer->getEvent();
-        $method            = $event->getMethodInstance();
-        $result            = $event->getResult();
-        $currencyCode      = Mage::app()->getStore()->getCurrentCurrencyCode();
-        $methodnew         = $observer->getMethodInstance();
-        $installmentsArray = $this->fetchInstallments();
+        $event   = $observer->getEvent();
+        $result  = $event->getResult();
+        $method  = $observer->getMethodInstance();
 
-        if ($methodnew->getCode() == 'payrightcheckout') {
-            if (($installmentsArray != "exceed_amount") && ($installmentsArray != "API Error")) {
-                $result->isAvailable = true;
-            } else {
-                $result->isAvailable = false;
-            }
+        if ($method->getCode() == 'payrightcheckout') {
+            $installments = $this->fetchInstallments();
+            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error") ? true: false;
         }
 
     }
 
-    public function fetchInstallments()
+    private function fetchInstallments()
     {
         $orderTotal   = Mage::helper('checkout')->getQuote()->getGrandTotal();
         $installments = Mage::helper('payright')->calculateSingleProductInstallment($orderTotal);
+
         return $installments;
     }
 

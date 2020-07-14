@@ -12,10 +12,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $apiURL = "oauth/token";
 
-        $existingPayrightAccessToken  = Mage::getSingleton('core/session')->getMyValue('payrightAccessToken');
-        $existingPayrightRefreshToken = Mage::getSingleton('core/session')->getMyValue('payrightRefereshToken');
+        $existingPayrightAccessToken  = Mage::getSingleton('core/session')->getPayrightAccessToken();
+        $existingPayrightRefreshToken = Mage::getSingleton('core/session')->getPayrightRefereshToken();
 
-        if (empty($exsistingPayrightAccessToken) && empty($exsistingPayrightRefreshToken)) {
+        if (empty($existingPayrightAccessToken) && empty($existingPayrightRefreshToken)) {
             $data = array(
                 "username"      => $this->getConfigValue('username'),
                 "password"      => $this->getConfigValue('password'),
@@ -30,11 +30,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
                 if (array_key_exists('error', $response)) {
                     return false;
                 } else {
-                    $existingPayrightAccessToken  = $response['access_token'];
-                    $existingPayrightRefreshToken = $response['refresh_token'];
+                    $payrightAccessToken  = $response['access_token'];
+                    $payrightRefreshToken = $response['refresh_token'];
 
-                    $reponseArray['payrightAccessToken']  = $existingPayrightAccessToken;
-                    $reponseArray['payrightRefreshToken'] = $existingPayrightRefreshToken;
+                    Mage::getSingleton('core/session')->setPayrightAccessToken($payrightAccessToken);
+                    Mage::getSingleton('core/session')->setPayrightRefereshToken($payrightRefreshToken);
+
+                    $reponseArray['payrightAccessToken']  = $payrightAccessToken;
+                    $reponseArray['payrightRefreshToken'] = $payrightRefreshToken;
                     $reponseArray['status']               = 'Authenticated';
 
                     return $reponseArray;
