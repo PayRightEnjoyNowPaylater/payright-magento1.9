@@ -46,6 +46,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
                 return 'Error';
             }
         }
+
+        return [
+            'payrightAccessToken'  => $existingPayrightAccessToken,
+            'payrightRefreshToken' => $existingPayrightRefreshToken,
+            'status'                => 'Authenticated',
+        ];
     }
 
     public function DoApiConfCallPayright($authToken)
@@ -108,7 +114,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'saleamount'  => $amount,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $SugarAuthToken);
         if (!isset($response['error'])) {
             $returnArray = $response['data'];
             return $returnArray;
@@ -137,7 +143,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
 
 
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $SugarAuthToken);
 
       
       
