@@ -2,7 +2,7 @@
 <config> 
     <modules>
         <Payright_Payright>
-            <version>1.0.0.0</version>
+            <version>1.0.2</version>
         </Payright_Payright>
     </modules>
 <global>
@@ -37,11 +37,12 @@
         </blocks>
 
         <resources>
-            <Payright_Payright_setup>
-             <setup>
-              <module>Payright_Payright</module>
-            </setup>
-            </Payright_Payright_setup>
+            <payright_setup>
+                <setup>
+                    <module>Payright_Payright</module>
+                    <class>Mage_Sales_Model_Resource_Setup</class>
+                </setup>
+            </payright_setup>
         </resources>
         <events>
             <payment_method_is_active>
@@ -52,9 +53,17 @@
                           <!-- <method>test</method> -->
                             <method>disablePayright</method>
                     </payright123_payment_method_is_active>
-                </observers>
-                
+                </observers>               
             </payment_method_is_active>
+            <sales_order_shipment_save_after>
+                <observers>
+                    <payright_order_shipment>
+                          <type>singleton</type>
+                          <class>payright/observer</class>
+                          <method>payrightOrderShipment</method>
+                    </payright_order_shipment>
+                </observers>       
+            </sales_order_shipment_save_after>
         </events>
     </global>
 

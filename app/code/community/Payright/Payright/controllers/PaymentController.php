@@ -89,6 +89,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $transactionStatus = $result->prtransactionStatus;
             }
 
+            $planId = isset($result->planData) ? $result->planData->id : null;
 
             if ($validated) {
                 if ($transactionStatus != "approved") {
@@ -98,6 +99,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                     $order = Mage::getModel('sales/order');
                     $order->loadByIncrementId($orderId);
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
+                    // Set Payright Details.
+                    $order->setPayrightPlanId($planId );
+                    $order->setPayrightEcomToken($ecom);
 
                     $order->sendNewOrderEmail();
                     $order->setEmailSent(true);
@@ -135,7 +139,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $transactionStatus = $result->prtransactionStatus;
             $planid            = $result->planId;
             if ($transactionStatus != "approved" && $transactionStatus != "Declined") {
-                $helper = Mage::helper('payright')->planStatusChange($planid);
+                $helper = Mage::helper('payright')->planStatusChange($planid, 'Cancelled');
 
             }
         }

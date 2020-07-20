@@ -30,6 +30,19 @@ class Payright_Payright_Model_Observer
 
     }
 
+    /**
+     * Activate Plans after shipment
+     */
+    public function payrightOrderShipment($observer)
+    {
+        $order = $observer->getEvent()->getShipment()->getOrder();
+
+        if ($order->getPayrightPlanId() !== null) {
+            $helper = Mage::helper('payright');
+            $helper->planStatusChange($order->getPayrightPlanId(), 'Active');
+        }
+    }
+
     private function fetchInstallments()
     {
         $orderTotal   = Mage::helper('checkout')->getQuote()->getGrandTotal();

@@ -155,7 +155,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    public function planStatusChange($planId)
+    public function planStatusChange($planId, $status)
     {
         $apiURL = "api/v1/changePlanStatus";
 
@@ -172,7 +172,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'Token'       => $sugarToken,
             'ConfigToken' => $configToken,
             'id'          => $planId,
-            'status'      => 'Cancelled',
+            'status'      => $status,
         );
 
         $response = $this->callPayrightAPI($data, $apiURL, $authToken);
