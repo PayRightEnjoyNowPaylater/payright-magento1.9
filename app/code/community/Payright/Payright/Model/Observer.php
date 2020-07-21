@@ -23,9 +23,9 @@ class Payright_Payright_Model_Observer
         $result  = $event->getResult();
         $method  = $observer->getMethodInstance();
 
-        if ($method->getCode() == 'payrightcheckout') {
+        if ($method->getCode() == 'payrightcheckout' && $result->isAvailable) {
             $installments = $this->fetchInstallments();
-            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error" && $result->isAvailable) ? true: false;
+            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error") ? true: false;
         }
 
     }
