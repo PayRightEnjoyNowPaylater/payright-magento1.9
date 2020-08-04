@@ -23,11 +23,19 @@ class Payright_Payright_Model_Observer
         $result  = $event->getResult();
         $method  = $observer->getMethodInstance();
 
-        if ($method->getCode() == 'payrightcheckout' && $result->isAvailable) {
-            $installments = $this->fetchInstallments();
-            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error") ? true: false;
+        if (!$result->isAvailable) {
+            return;
         }
 
+
+        if ($method->getCode() == 'payrightcheckout') {
+
+            $orderTotal   = Mage::helper('checkout')->getQuote()->getGrandTotal();
+            $minValue = Mage::helper('payright')->getConfigValue('min_amount');
+
+            $installments = $this->fetchInstallments();
+            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error" &&  $orderTotal >= $minValue) ? true : false;
+        }
     }
 
     /**
