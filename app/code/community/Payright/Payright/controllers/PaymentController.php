@@ -41,7 +41,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $configToken,
                 json_encode($transactionData),
                 $ecommClientId,
-                $merchantReference);
+                $merchantReference
+            );
 
             /// get the endpoints from the config files
             $ApiEndpoints = $this->getEnviromentEndpoints();
@@ -56,14 +57,16 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             Mage::getSingleton('customer/session')->unsPayrightRefereshToken();
 
             $this->loadLayout();
-            $block = $this->getLayout()->createBlock('Mage_Core_Block_Template', 'payright',
-                array('template' => 'payright/redirect.phtml'))
+            $block = $this->getLayout()->createBlock(
+                'Mage_Core_Block_Template',
+                'payright',
+                array('template' => 'payright/redirect.phtml')
+            )
                 ->setData('builtappendpoint', $builtAppUrl);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
         }
-
     }
     // The response action is triggered when your gateway sends back a response after processing the customer's payment
     public function responseAction()
@@ -90,6 +93,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             }
 
             $planId = isset($result->planData) ? $result->planData->id : null;
+            $planName = isset($result->planData) ? $result->planData->name : null;
 
             if ($validated) {
                 if ($transactionStatus != "approved") {
@@ -100,13 +104,18 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                     $order->loadByIncrementId($orderId);
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
                     // Set Payright Details.
-                    $order->setPayrightPlanId($planId );
+                    $order->setPayrightPlanId($planId);
                     $order->setPayrightEcomToken($ecom);
 
                     $order->sendNewOrderEmail();
                     $order->setEmailSent(true);
 
                     $order->save();
+
+                    // Save order ID in sales_flat_order_payment table
+                    $payment = $order->getPayment();
+                    $payment->setData('payright_order_number', $planName);
+                    $payment->save();
 
                     Mage::getSingleton('checkout/session')->unsQuoteId();
 
@@ -122,7 +131,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             //Mage_Core_Controller_Varien_Action::_redirect('');
 
         }
-
     }
 
     // The cancel action is triggered when an order is to be cancelled
@@ -140,7 +148,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $planid            = $result->planId;
             if ($transactionStatus != "approved" && $transactionStatus != "Declined") {
                 $helper = Mage::helper('payright')->planStatusChange($planid, 'Cancelled');
-
             }
         }
 
@@ -167,7 +174,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                     }
                 }
                 $cart->save();
-
             }
         }
         Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
@@ -187,7 +193,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
                 $returnEndpoints['ApiUrl']      = $sandboxApiUrl;
                 $returnEndpoints['AppEndpoint'] = $sandboxAppEndpoint;
-
             } else {
 
                 $productionApiUrl   = Mage::getConfig()->getNode('global/payright/environments/production')->api_url;
@@ -195,16 +200,13 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
                 $returnEndpoints['ApiUrl']      = $productionApiUrl;
                 $returnEndpoints['AppEndpoint'] = $productionEndpoint;
-
             }
 
             return $returnEndpoints;
-
         } catch (Exception $e) {
 
             echo 'Caught exception: ', $e->getMessage(), "\n";
         }
-
     }
 
     public function buildRedirectUrl($envConfigArray, $ecommToken)
@@ -213,5 +215,4 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
         return $redirectUrlBuild;
     }
-
 }
