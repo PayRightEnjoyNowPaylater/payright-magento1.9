@@ -114,7 +114,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
                     // Save order ID in sales_flat_order_payment table
                     $payment = $order->getPayment();
-                    $payment->setData('payright_order_number', $planName);
+                    $payment->setData('payright_plan_number', $planName);
                     $payment->save();
 
                     Mage::getSingleton('checkout/session')->unsQuoteId();

@@ -10,8 +10,8 @@ class Payright_Payright_Block_Info_Payright extends Mage_Payment_Block_Info
 
     $data = array();
 
-    if ($this->getInfo()->getPayrightOrderNumber()) {
-      $data[Mage::helper('payment')->__('Payright Plan Number')] = $this->getInfo()->getPayrightOrderNumber();
+    if ($this->getInfo()->getPayrightPlanNumber()) {
+      $data[Mage::helper('payment')->__('Payright Plan Number')] = $this->getInfo()->getPayrightPlanNumber();
     }
 
     $transport = parent::_prepareSpecificInformation($transport);
