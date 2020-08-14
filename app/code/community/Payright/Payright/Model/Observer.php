@@ -34,7 +34,7 @@ class Payright_Payright_Model_Observer
             $minValue = Mage::helper('payright')->getConfigValue('min_amount');
 
             $installments = $this->fetchInstallments();
-            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error" &&  bccomp($orderTotal ,$minValue, 3) >= 0) ? true : false;
+            $result->isAvailable = ($installments !== "exceed_amount" && $installments !== "API Error" &&  $orderTotal >= $minValue) ? true : false;
         }
     }
 
