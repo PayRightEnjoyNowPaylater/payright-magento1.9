@@ -12,10 +12,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $apiURL = "oauth/token";
 
-        $existingPayrightAccessToken  = Mage::getSingleton('core/session')->getMyValue('payrightAccessToken');
-        $existingPayrightRefreshToken = Mage::getSingleton('core/session')->getMyValue('payrightRefereshToken');
+        $existingPayrightAccessToken  = Mage::getSingleton('customer/session')->getPayrightAccessToken();
+        $existingPayrightRefreshToken = Mage::getSingleton('customer/session')->getPayrightRefereshToken();
 
-        if (empty($exsistingPayrightAccessToken) && empty($exsistingPayrightRefreshToken)) {
+        if (empty($existingPayrightAccessToken) && empty($existingPayrightRefreshToken)) {
             $data = array(
                 "username"      => $this->getConfigValue('username'),
                 "password"      => $this->getConfigValue('password'),
@@ -30,11 +30,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
                 if (array_key_exists('error', $response)) {
                     return false;
                 } else {
-                    $existingPayrightAccessToken  = $response['access_token'];
-                    $existingPayrightRefreshToken = $response['refresh_token'];
+                    $payrightAccessToken  = $response['access_token'];
+                    $payrightRefreshToken = $response['refresh_token'];
 
-                    $reponseArray['payrightAccessToken']  = $existingPayrightAccessToken;
-                    $reponseArray['payrightRefreshToken'] = $existingPayrightRefreshToken;
+                    Mage::getSingleton('customer/session')->setPayrightAccessToken($payrightAccessToken);
+                    Mage::getSingleton('customer/session')->setPayrightRefereshToken($payrightRefreshToken);
+
+                    $reponseArray['payrightAccessToken']  = $payrightAccessToken;
+                    $reponseArray['payrightRefreshToken'] = $payrightRefreshToken;
                     $reponseArray['status']               = 'Authenticated';
 
                     return $reponseArray;
@@ -43,6 +46,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
                 return 'Error';
             }
         }
+
+        return [
+            'payrightAccessToken'  => $existingPayrightAccessToken,
+            'payrightRefreshToken' => $existingPayrightRefreshToken,
+            'status'                => 'Authenticated',
+        ];
     }
 
     public function DoApiConfCallPayright($authToken)
@@ -105,7 +114,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'saleamount'  => $amount,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $SugarAuthToken);
         if (!isset($response['error'])) {
             $returnArray = $response['data'];
             return $returnArray;
@@ -134,7 +143,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
 
 
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $SugarAuthToken);
 
       
       
@@ -146,7 +155,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    public function planStatusChange($planId)
+    public function planStatusChange($planId, $status)
     {
         $apiURL = "api/v1/changePlanStatus";
 
@@ -163,10 +172,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'Token'       => $sugarToken,
             'ConfigToken' => $configToken,
             'id'          => $planId,
-            'status'      => 'Cancelled',
+            'status'      => $status,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $getPayRightAccessToken);
 
         if (!isset($response['error'])) {
             $returnArray = $response['data'];
@@ -188,7 +197,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'ecomToken' => $ecommerceToken,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $getPayRightAccessToken);
 
         if (!isset($response['error'])) {
             return $response;
