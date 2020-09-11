@@ -175,7 +175,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'status'      => $status,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $getPayRightAccessToken);
 
         if (!isset($response['error'])) {
             $returnArray = $response['data'];
@@ -197,7 +197,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract
             'ecomToken' => $ecommerceToken,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $getPayRightAccessToken);
 
         if (!isset($response['error'])) {
             return $response;
