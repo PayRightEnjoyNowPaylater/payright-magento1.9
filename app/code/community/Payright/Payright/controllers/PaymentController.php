@@ -56,6 +56,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             Mage::getSingleton('customer/session')->unsPayrightAccessToken();
             Mage::getSingleton('customer/session')->unsPayrightRefereshToken();
 
+            // Save Cart details
+            $this->_saveCart();
+
             $this->loadLayout();
             $block = $this->getLayout()->createBlock(
                 'Mage_Core_Block_Template',
@@ -151,31 +154,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             }
         }
 
-        if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
-
-            $order = Mage::getModel('sales/order')->loadByIncrementId(Mage::getSingleton('checkout/session')->getLastRealOrderId());
-
-            ### add the item back to the shopping cart
-            if ($order->getId()) {
-                // Flag the order as 'cancelled' and save i
-                $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
-
-                // once we cancel the order then rebuild cart
-                $cart  = Mage::getSingleton('checkout/cart');
-                $items = $order->getItemsCollection();
-
-                foreach ($items as $item) {
-                    try {
-                        $cart->addOrderItem($item);
-                    } catch (Mage_Core_Exception $e) {
-                        echo $e->getMessage();
-                    } catch (Exception $e) {
-                        Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
-                    }
-                }
-                $cart->save();
-            }
-        }
+        $this->_saveCart();
+        
         Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
         $this->_redirect('checkout/cart');
         return;
@@ -214,5 +194,34 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $redirectUrlBuild = $envConfigArray['AppEndpoint'] . "/loan/new/" . $ecommToken;
 
         return $redirectUrlBuild;
+    }
+
+    private function _saveCart()
+    {
+        if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
+
+            $order = Mage::getModel('sales/order')->loadByIncrementId(Mage::getSingleton('checkout/session')->getLastRealOrderId());
+
+            ### add the item back to the shopping cart
+            if ($order->getId()) {
+                // Flag the order as 'cancelled' and save i
+                $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
+
+                // once we cancel the order then rebuild cart
+                $cart  = Mage::getSingleton('checkout/cart');
+                $items = $order->getItemsCollection();
+
+                foreach ($items as $item) {
+                    try {
+                        $cart->addOrderItem($item);
+                    } catch (Mage_Core_Exception $e) {
+                        echo $e->getMessage();
+                    } catch (Exception $e) {
+                        Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
+                    }
+                }
+                $cart->save();
+            }
+        }
     }
 }
