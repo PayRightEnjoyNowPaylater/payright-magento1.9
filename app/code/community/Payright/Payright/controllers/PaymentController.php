@@ -154,7 +154,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             }
         }
 
-        $this->_saveCart();
+        $this->_saveCart(true);
         
         Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
         $this->_redirect('checkout/cart');
@@ -196,7 +196,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         return $redirectUrlBuild;
     }
 
-    private function _saveCart()
+    private function _saveCart($updateCancelStatus = false)
     {
         if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
 
@@ -205,8 +205,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             ### add the item back to the shopping cart
             if ($order->getId()) {
                 // Flag the order as 'cancelled' and save i
-                $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
-
+                if ($updateCancelStatus) {
+                    $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
+                }
                 // once we cancel the order then rebuild cart
                 $cart  = Mage::getSingleton('checkout/cart');
                 $items = $order->getItemsCollection();
