@@ -213,7 +213,10 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
                 foreach ($items as $item) {
                     try {
-                        $cart->addOrderItem($item);
+                        $productId = $item->getProduct()->getId();
+                        if (! $cart->getQuote()->hasProductId($productId)) {
+                            $cart->addOrderItem($item);
+                        }
                     } catch (Mage_Core_Exception $e) {
                         echo $e->getMessage();
                     } catch (Exception $e) {
