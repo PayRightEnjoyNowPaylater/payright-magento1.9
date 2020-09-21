@@ -57,7 +57,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             Mage::getSingleton('customer/session')->unsPayrightRefereshToken();
 
             // Save Cart details
-            $this->_saveCart();
+            $this->_saveCart(true);
 
             $this->loadLayout();
             $block = $this->getLayout()->createBlock(
@@ -154,7 +154,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             }
         }
 
-        $this->_saveCart();
+        $this->_saveCart(false);
         
         Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
         $this->_redirect('checkout/cart');
@@ -196,7 +196,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         return $redirectUrlBuild;
     }
 
-    private function _saveCart()
+    private function _saveCart($isAddItemToCart)
     {
         if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
 
@@ -210,18 +210,18 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $cart  = Mage::getSingleton('checkout/cart');
                 $items = $order->getItemsCollection();
 
-                foreach ($items as $item) {
-                    try {
-                        $productId = $item->getProduct()->getId();
-                        if (! $cart->getQuote()->hasProductId($productId)) {
+                if ($isAddItemToCart) {
+                    foreach ($items as $item) {
+                        try {
                             $cart->addOrderItem($item);
+                        } catch (Mage_Core_Exception $e) {
+                            echo $e->getMessage();
+                        } catch (Exception $e) {
+                            Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
                         }
-                    } catch (Mage_Core_Exception $e) {
-                        echo $e->getMessage();
-                    } catch (Exception $e) {
-                        Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
                     }
                 }
+                
                 $cart->save();
             }
         }
