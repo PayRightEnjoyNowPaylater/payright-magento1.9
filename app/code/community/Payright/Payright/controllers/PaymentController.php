@@ -1,13 +1,20 @@
 <?php
-// app/code/local/Envato/Custompaymentmethod/controllers/PaymentController.php
-class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Action
-{
 
-    public function redirectAction()
-    {
+// app/code/local/Envato/Custompaymentmethod/controllers/PaymentController.php
+class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Action {
+
+    private $checkoutSession;
+
+    public function __construct(
+        \Magento\Checkout\Model\Session\Proxy $checkoutSession
+    ) {
+        $this->checkoutSession = $checkoutSession;
+    }
+
+    public function redirectAction() {
 
         $payApiAuth = Mage::helper('payright')->DoApiCallPayright();
-        $apiToken   = $payApiAuth['payrightAccessToken'];
+        $apiToken = $payApiAuth['payrightAccessToken'];
 
         // if successfully authenticated then go do the configuration call
         if ($payApiAuth['status'] == 'Authenticated') {
@@ -15,7 +22,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $payConfigCall = Mage::helper('payright')->DoApiTransactionConfCallPayright($apiToken);
 
             ### fetch the mangentoo order id
-            $_order  = new Mage_Sales_Model_Order();
+            $_order = new Mage_Sales_Model_Order();
             $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
             $_order->loadByIncrementId($orderId);
 
@@ -23,16 +30,16 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             ### this is the get the merchant store id
             $clientId = Mage::helper('payright')->getConfigValue('client_id');
 
-            $transactionData['transactionTotal'] = number_format((float) $_order->getBaseGrandTotal(), 2, '.', '');
-            $transactionData['platform_type']    = 'magentov1';
-            $transactionData['magentoOrderId']   = $orderId;
+            $transactionData['transactionTotal'] = number_format((float)$_order->getBaseGrandTotal(), 2, '.', '');
+            $transactionData['platform_type'] = 'magentov1';
+            $transactionData['magentoOrderId'] = $orderId;
 
-            $ecommClientId     = $clientId;
+            $ecommClientId = $clientId;
             $merchantReference = "MageParyright_" . $orderId;
             ### this is the transactions data
 
             $configToken = $payConfigCall['configToken'];
-            $sugarAuth   = $payConfigCall['auth']['auth-token'];
+            $sugarAuth = $payConfigCall['auth']['auth-token'];
 
             ### do the call to intialize the payright transaction.
             $intialiseTransaction = Mage::helper('payright')->DoApiIntializeTransaction(
@@ -41,29 +48,39 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $configToken,
                 json_encode($transactionData),
                 $ecommClientId,
-                $merchantReference);
+                $merchantReference
+            );
 
             /// get the endpoints from the config files
             $ApiEndpoints = $this->getEnviromentEndpoints();
             /// build the redirect URL
-            $builtAppUrl                    = $this->buildRedirectUrl($ApiEndpoints, $intialiseTransaction['ecommToken']);
+            $builtAppUrl = $this->buildRedirectUrl($ApiEndpoints, $intialiseTransaction['ecommToken']);
             $layoutData['builtAppEndpoint'] = $builtAppUrl;
 
             $layoutDataString = implode(", ", $layoutData);
 
+            // Clear session values.
+            Mage::getSingleton('customer/session')->unsPayrightAccessToken();
+            Mage::getSingleton('customer/session')->unsPayrightRefereshToken();
+
+            // Restore cart / quote - for users who click 'Back' browser button
+            $this->_handleCart(true);
+
             $this->loadLayout();
-            $block = $this->getLayout()->createBlock('Mage_Core_Block_Template', 'payright',
-                array('template' => 'payright/redirect.phtml'))
+            $block = $this->getLayout()->createBlock(
+                'Mage_Core_Block_Template',
+                'payright',
+                array('template' => 'payright/redirect.phtml')
+            )
                 ->setData('builtappendpoint', $builtAppUrl);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
         }
-
     }
+
     // The response action is triggered when your gateway sends back a response after processing the customer's payment
-    public function responseAction()
-    {
+    public function responseAction() {
         if ($this->getRequest()->isGet()) {
 
             /*
@@ -73,18 +90,20 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             /* and is provided by the gateway.
             /* For now, we assume that the gateway's response is valid
              */
-            $orderId   = Mage::app()->getRequest()->getParam('orderid');
-            $ecom      = Mage::app()->getRequest()->getParam('ecommtoken');
+            $orderId = Mage::app()->getRequest()->getParam('orderid');
+            $ecom = Mage::app()->getRequest()->getParam('ecommtoken');
             $validated = true;
 
             ### do the call to getplan data for the payright transaction.
-            $json   = Mage::helper('payright')->getPlanDataByToken($ecom);
+            $json = Mage::helper('payright')->getPlanDataByToken($ecom);
             $result = json_decode($json['transactionResult']);
 
             if (isset($result->prtransactionStatus)) {
                 $transactionStatus = $result->prtransactionStatus;
             }
 
+            $planId = isset($result->planData) ? $result->planData->id : null;
+            $planName = isset($result->planData) ? $result->planData->name : null;
 
             if ($validated) {
                 if ($transactionStatus != "approved") {
@@ -94,11 +113,19 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                     $order = Mage::getModel('sales/order');
                     $order->loadByIncrementId($orderId);
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
+                    // Set Payright Details.
+                    $order->setPayrightPlanId($planId);
+                    $order->setPayrightEcomToken($ecom);
 
                     $order->sendNewOrderEmail();
                     $order->setEmailSent(true);
 
                     $order->save();
+
+                    // Save order ID in sales_flat_order_payment table
+                    $payment = $order->getPayment();
+                    $payment->setData('payright_plan_number', $planName);
+                    $payment->save();
 
                     Mage::getSingleton('checkout/session')->unsQuoteId();
 
@@ -114,96 +141,120 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             //Mage_Core_Controller_Varien_Action::_redirect('');
 
         }
-
     }
 
     // The cancel action is triggered when an order is to be cancelled
-    public function cancelAction()
-    {
+    public function cancelAction() {
 
         $ecom = Mage::app()->getRequest()->getParam('ecommtoken');
 
         ### do the call to getplan data for the payright transaction.
-        $json   = Mage::helper('payright')->getPlanDataByToken($ecom);
+        $json = Mage::helper('payright')->getPlanDataByToken($ecom);
         $result = json_decode($json['transactionResult']);
 
         if (isset($result->prtransactionStatus)) {
             $transactionStatus = $result->prtransactionStatus;
-            $planid            = $result->planId;
+            $planid = $result->planId;
             if ($transactionStatus != "approved" && $transactionStatus != "Declined") {
-                $helper = Mage::helper('payright')->planStatusChange($planid);
-
+                $helper = Mage::helper('payright')->planStatusChange($planid, 'Cancelled');
             }
         }
 
+        $this->_handleCart(false, true);
+
+        Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
+        $this->_redirect('checkout/cart');
+        return;
+    }
+
+    public function getEnviromentEndpoints() {
+        $payrightMode = Mage::helper('payright')->getConfigValue('sandbox');
+        /// if the payright mode is set to sandbox then get the API endpoints
+        try {
+
+            if ($payrightMode == '1') {
+                $sandboxApiUrl = Mage::getConfig()->getNode('global/payright/environments/sandbox')->api_url;
+                $sandboxAppEndpoint = Mage::getConfig()->getNode('global/payright/environments/sandbox')->web_url;
+
+                $returnEndpoints['ApiUrl'] = $sandboxApiUrl;
+                $returnEndpoints['AppEndpoint'] = $sandboxAppEndpoint;
+            } else {
+
+                $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url;
+                $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url;
+
+                $returnEndpoints['ApiUrl'] = $productionApiUrl;
+                $returnEndpoints['AppEndpoint'] = $productionEndpoint;
+            }
+
+            return $returnEndpoints;
+        } catch (Exception $e) {
+
+            echo 'Caught exception: ', $e->getMessage(), "\n";
+        }
+    }
+
+    public function buildRedirectUrl($envConfigArray, $ecommToken) {
+        $redirectUrlBuild = $envConfigArray['AppEndpoint'] . "/loan/new/" . $ecommToken;
+
+        return $redirectUrlBuild;
+    }
+
+    private function _handleCart($isRestoreCart, $cancel = false) {
+
+        // If for redirectAction() function, then also "save" (restore) the last quote of order given
+        if($isRestoreCart) {
+            if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
+                if ($lastQuoteId = Mage::getSingleton('checkout/session')->getLastQuoteId()) {
+                    $quote = Mage::getModel('sales/quote')->load($lastQuoteId);
+                    $quote->setIsActive(true)->save();
+                }
+            }
+        }
+
+        // If for cancelAction() function, then
+        if ($cancel) {
+            if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
+                $order = Mage::getModel('sales/order')->loadByIncrementId(Mage::getSingleton('checkout/session')->getLastRealOrderId());
+
+                if ($order->getId()) {
+                    // Flag the order as 'cancelled' and save
+                    $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
+                }
+            }
+        }
+
+        /* TODO Remove until PW-304 issue is resolved */
+        /*
         if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
 
             $order = Mage::getModel('sales/order')->loadByIncrementId(Mage::getSingleton('checkout/session')->getLastRealOrderId());
 
             ### add the item back to the shopping cart
             if ($order->getId()) {
-                // Flag the order as 'cancelled' and save i
-                $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
-
-                // once we cancel the order then rebuild cart
-                $cart  = Mage::getSingleton('checkout/cart');
-                $items = $order->getItemsCollection();
-
-                foreach ($items as $item) {
-                    try {
-                        $cart->addOrderItem($item);
-                    } catch (Mage_Core_Exception $e) {
-                        echo $e->getMessage();
-                    } catch (Exception $e) {
-                        Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
-                    }
+                // Flag the order as 'cancelled' and save
+                if ($cancel) {
+                    $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
                 }
-                $cart->save();
 
+                if ($isAddItemToCart) {
+                    $cart = Mage::getSingleton('checkout/cart');
+                    $items = $order->getItemsCollection();
+
+                    foreach ($items as $item) {
+                        try {
+                            $cart->addOrderItem($item);
+                        } catch (Mage_Core_Exception $e) {
+                            echo $e->getMessage();
+                        } catch (Exception $e) {
+                            Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
+                        }
+                    }
+
+                    $cart->save();
+                }
             }
         }
-        Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
-        $this->_redirect('checkout/cart');
-        return;
+        */
     }
-
-    public function getEnviromentEndpoints()
-    {
-        $payrightMode = Mage::helper('payright')->getConfigValue('sandbox');
-        /// if the payright mode is set to sandbox then get the API endpoints
-        try {
-
-            if ($payrightMode == '1') {
-                $sandboxApiUrl      = Mage::getConfig()->getNode('global/payright/environments/sandbox')->api_url;
-                $sandboxAppEndpoint = Mage::getConfig()->getNode('global/payright/environments/sandbox')->web_url;
-
-                $returnEndpoints['ApiUrl']      = $sandboxApiUrl;
-                $returnEndpoints['AppEndpoint'] = $sandboxAppEndpoint;
-
-            } else {
-
-                $productionApiUrl   = Mage::getConfig()->getNode('global/payright/environments/production')->api_url;
-                $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url;
-
-                $returnEndpoints['ApiUrl']      = $productionApiUrl;
-                $returnEndpoints['AppEndpoint'] = $productionEndpoint;
-
-            }
-
-            return $returnEndpoints;
-
-        } catch (Exception $e) {
-
-            echo 'Caught exception: ', $e->getMessage(), "\n";
-        }
-
-    }
-
-    public function buildRedirectUrl($envConfigArray, $ecommToken)
-    {
-        $redirectUrlBuild = $envConfigArray['AppEndpoint'] . "/loan/new/" . $ecommToken;
-
-        return $redirectUrlBuild;
-    }
-
 }
