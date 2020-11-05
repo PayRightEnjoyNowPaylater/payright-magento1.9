@@ -223,38 +223,5 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 }
             }
         }
-
-        /* TODO Remove until PW-304 issue is resolved */
-        /*
-        if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
-
-            $order = Mage::getModel('sales/order')->loadByIncrementId(Mage::getSingleton('checkout/session')->getLastRealOrderId());
-
-            ### add the item back to the shopping cart
-            if ($order->getId()) {
-                // Flag the order as 'cancelled' and save
-                if ($cancel) {
-                    $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
-                }
-
-                if ($isAddItemToCart) {
-                    $cart = Mage::getSingleton('checkout/cart');
-                    $items = $order->getItemsCollection();
-
-                    foreach ($items as $item) {
-                        try {
-                            $cart->addOrderItem($item);
-                        } catch (Mage_Core_Exception $e) {
-                            echo $e->getMessage();
-                        } catch (Exception $e) {
-                            Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
-                        }
-                    }
-
-                    $cart->save();
-                }
-            }
-        }
-        */
     }
 }
