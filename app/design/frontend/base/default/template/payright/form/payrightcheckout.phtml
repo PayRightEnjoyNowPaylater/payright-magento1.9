@@ -11,7 +11,7 @@ $installmentsArray = $this->fetchInstallments();
                     <div class="insideColumns installments">
                         <Strong class="payRightH2 paymentstitle"
                                 id="payrightmargin">
-                            <?php echo $installmentsArray['minDeposit'] . " today then "; ?>
+                            $<?php echo $installmentsArray['minDeposit'] . " today then "; ?>
                             <?php echo $installmentsArray['noofrepayments'] . " " . $installmentsArray['repaymentfrequency']; ?>
                             Installments of $<?php echo $installmentsArray['LoanAmountPerPayment']; ?></strong>
                     </div>
