@@ -8,7 +8,9 @@ class Payright_Payright_Model_Observer {
     public function updateAdminConfiguration($observer) {
         $authToken = Mage::helper('payright')->getAccessToken();
 
-        if ($authToken != '' || is_null($authToken)) {
+        if ($authToken) {
+            // Do nothing
+        } else {
             $message = 'We require your \'Access Token\', it can be obtained from your merchant store at the developer portal.';
             Mage::getSingleton('adminhtml/session')->addError($message);
         }
