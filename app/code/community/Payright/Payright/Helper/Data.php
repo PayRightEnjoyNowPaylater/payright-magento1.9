@@ -75,20 +75,30 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $apiURL = "api/v1/merchant/configuration";
         $authToken = $this->getAccessToken();
 
-        $returnArray = array();
+        $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
+        $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
-        $response = $this->callPayrightAPI(null, $apiURL, $authToken);
+        $client = new Zend_Http_Client($apiEndpoint . $apiURL);
+        $client->setMethod(Zend_Http_Client::GET);
+        $client->setHeaders(array('Content-Type: application/json', 'Accept: application/json', 'Authorization: Bearer ' . $authToken));
+        $client->setConfig(array('timeout' => 15));
+
+        $response = $client->request()->getBody();
+
+        // $response = $this->callPayrightAPI(null, $apiURL, $authToken);
+
+        $returnArray = array();
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
-            // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
-            $returnArray['rates'] = $response['data']['rates'];
+            $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
+            // $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
             $returnArray['otherFees'] = $response['data']['otherFees'];
 
             return $returnArray;
         } else {
-            return 'Error';
+            return $response['error'];
         }
     }
 
@@ -328,8 +338,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $chkLoanLimit = 0;
 
         $keys = array_keys($getRates);
-
-        //print_r($keys);
 
         for ($i = 0; $i < count($getRates); $i++) {
             foreach ($getRates[$keys[$i]] as $key => $value) {
