@@ -16,7 +16,7 @@ This section outlines the steps to install the Payright plugin for the first tim
 4. Copy all files in `/app/design/frontend/base/default/layout` to `[MAGENTO]/app/design/frontend/base/default/layout`.
 5. Copy all files in `/app/design/frontend/base/default/template` to `[MAGENTO]/app/design/frontend/base/default/template`.
 6. Copy all files in `/app/etc/modules/`  to `[MAGENTO]/app/etc/modules`.
-7. Copy all files in ` /js/`  to `[MAGENTO]/js/`.
+7. Copy all files in `/js/`  to `[MAGENTO]/js/`.
 8. Copy all files in `/skin/frontend/base/default/` to `[MAGENTO]/skin/frontend/base/default/`.
 9. Login to Magento Admin and navigate to **System** > **Cache Management**.
 10. Flush the cache storage by selecting **Flush Cache Storage** from **System** > **Cache Management**.
