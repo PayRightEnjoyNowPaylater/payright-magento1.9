@@ -12,21 +12,18 @@ class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Templa
         $productType = Mage::registry('current_product')->getTypeId();
         $productPrice = Mage::registry('current_product')->getPrice();
 
+        $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
+
         if ($productType == "configurable") {
             $productPrice = Mage::registry('current_product')->getPrice();
-            $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
-
         } elseif ($productType == "simple") {
             $productPrice = Mage::registry('current_product')->getPrice();
-            $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
-
         } elseif ($productType == "grouped") {
             // Do nothing
         } elseif ($productType == "bundle") {
             $product = Mage::getModel('catalog/product');
             $_product = $product->load(Mage::registry('current_product')->getId());
             $productPrice = Mage::getModel('bundle/product_price')->getTotalPrices($_product, 'min', 1);
-            $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
         }
 
         return $installmentText;
@@ -43,9 +40,7 @@ class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Templa
     }
 
     public function getProductPrice() {
-        $product_id = Mage::registry('current_product')->getPrice();
-
-        return $product_id;
+        return Mage::registry('current_product')->getPrice();
     }
 
     public function getCssSelectors() {
@@ -71,7 +66,6 @@ class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Templa
         } else {
             return 0;
         }
-
     }
 
     public function getJsConfig() {
