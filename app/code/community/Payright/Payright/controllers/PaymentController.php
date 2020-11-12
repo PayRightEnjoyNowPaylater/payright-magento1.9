@@ -13,30 +13,30 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
     public function redirectAction() {
 
-        $payApiAuth = Mage::helper('payright')->DoApiCallPayright();
-        $apiToken = $payApiAuth['payrightAccessToken'];
+        $authToken = Mage::helper('payright')->getAccessToken();
+        $redirectUrl = Mage::helper('payright')->getRedirectUrl();
 
-        // if successfully authenticated then go do the configuration call
-        if ($payApiAuth['status'] == 'Authenticated') {
-            // do the config call
-            $payConfigCall = Mage::helper('payright')->DoApiTransactionConfCallPayright($apiToken);
-
-            // fetch the mangentoo order id
+        // If 'access token' and 'redirect url' is not empty.
+        if ($authToken != '' && $redirectUrl != '') {
+            // Fetch the Magento order id
             $_order = new Mage_Sales_Model_Order();
             $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
             $_order->loadByIncrementId($orderId);
 
-            $sandboxEnv = Mage::getConfig()->getNode('global/payright/environments/sandbox/api_url');
-
+            // Prepare 'sale amount' as currency format.
             $saleAmount = number_format((float)$_order->getBaseGrandTotal(), 2, '.', '');
 
+            // Define the merchant reference, of order.
             $merchantReference = "MagePayright_" . $orderId;
-            // this is the transactions data
 
-            $expiresAt = date(DATE_ISO8601, strtotime('2021-12-30 23:00:00'));
-            $redirectUrl = 'http://local.magento';
+            // Generate 'expiresAt', set to expire 6 months from today's datetime.
+            $dt = new DateTime();
+            $interval = new DateInterval('P6M');
+            $dt->add($interval);
+            $dt->setTimeZone(new DateTimeZone('UTC'));
+            $expiresAt = $dt->format('Y-m-d\TH-i-s.\0\0\0\Z');
 
-            // do the call to intialize the payright transaction.
+            // Initialize the Payright transaction.
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
                 $merchantReference,
                 $saleAmount,
@@ -44,10 +44,10 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $expiresAt
             );
 
-            // get the endpoints from the config files
+            // Get the endpoints from the config files
             $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
 
-            // build the redirect URL
+            // Build the redirect, to 'checkout portal'.
             $builtAppUrl = $this->buildRedirectUrl($apiEndpoints, $initialiseTransaction['data']['checkoutId']);
 
             $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
@@ -98,8 +98,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
             $resStatus = isset($result->status) ? $result->status : null;
 
+            // TODO Update status check, from query param to work with response status value.
             if ($validated) {
-                if ($resStatus != "APPROVED") {
+                if ($status != "COMPLETE") {
                     $this->cancelAction();
                 } else {
                     // Payment was successful, so update the order's state, send order email and move to the success page

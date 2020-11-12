@@ -9,12 +9,22 @@
 class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
     /**
-     * Get 'Access Token' of merchant store, taken from 'developer-portal.payright.com.au' website.
+     * Get 'Access Token' of merchant store.
+     * For more information, please review the README.md file.
      *
      * @return mixed
      */
-    private function getAccessToken() {
+    public function getAccessToken() {
         return $this->getConfigValue('accesstoken');
+    }
+
+    /**
+     * Get 'Redirect Url' from admin configuration settings.
+     *
+     * @return mixed
+     */
+    public function getRedirectUrl() {
+        return $this->getConfigValue('redirecturl');
     }
 
     public function performApiCheckout($merchantReference, $saleAmount, $redirectUrl, $expiresAt) {
