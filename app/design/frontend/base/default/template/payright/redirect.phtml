@@ -5,10 +5,10 @@ $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
 $_order->loadByIncrementId($orderId);
 
 ?>
-<form id="payrightgatewayform" name="payrightgatewayform" method="GET" action="<?php echo $this->builtappendpoint;?>">
-	<input type="hidden" name="orderid" value="<?php echo $orderId; ?>">
+<form id="payrightgatewayform" name="payrightgatewayform" method="GET" action="<?php echo $this->builtappendpoint; ?>">
+    <input type="hidden" name="orderid" value="<?php echo $orderId; ?>">
     <input type="hidden" name="grandtotal" value="<?php echo $_order->getBaseGrandTotal(); ?>">
 </form>
 <script type="text/javascript">
-	document.payrightgatewayform.submit();
+    document.payrightgatewayform.submit();
 </script>
