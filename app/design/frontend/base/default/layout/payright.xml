@@ -4,8 +4,8 @@
             <block type="payright/products" output="toHtml" name="myblock" template="payright/products.phtml" after="-" />
         </reference>
         <reference name="head">
-                <action method="addItem"><type>skin_css</type><name>payright/css/payright-modal.css</name></action>
-                <action method="addItem"><type>skin_css</type><name>payright/css/payrightModalMain.css</name></action>
+            <action method="addItem"><type>skin_css</type><name>payright/css/payright-modal.css</name></action>
+            <action method="addItem"><type>skin_css</type><name>payright/css/payrightModalMain.css</name></action>
         </reference>
         <reference name="before_body_end">
             <block type="core/template" name="payright.modal" template="payright/modal.phtml" />
