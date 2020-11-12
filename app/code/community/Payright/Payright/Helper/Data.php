@@ -91,8 +91,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
-            $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
-            // $returnArray['rates'] = $response['data']['rates'];
+            // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
+            $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
             $returnArray['otherFees'] = $response['data']['otherFees'];
 
@@ -111,7 +111,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
     public function calculateSingleProductInstallment($saleAmount) {
         $authToken = $this->getAccessToken();
 
-        if ($authToken != '' || is_null($authToken)) {
+        if ($authToken) {
             $data = $this->performApiGetRates();
 
             $getRates = $data['rates'];
@@ -178,10 +178,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                     return "exceed_amount";
                 }
             } else {
-                return "API Error";
+                return "rates_error";
             }
         } else {
-            return "API Error";
+            return "auth_token_error";
         }
     }
 
