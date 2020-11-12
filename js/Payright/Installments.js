@@ -77,7 +77,7 @@
     };
     Payright.Installments.render = function(installmentTextobj) {
 
-        if(installmentTextobj == 'API Error')
+        if(installmentTextobj == 'auth_token_error')
         {
             console.warn("Payright API Authentication issue. Please make sure your auth credentials are correct.");
             return;
@@ -148,7 +148,6 @@
             } catch (e) {
                 console.log('Payright: Error on processing price-box element: ', e);
             }
-
         }
     };
 })(window.Prototype, window.Element, window.Product, window.console);

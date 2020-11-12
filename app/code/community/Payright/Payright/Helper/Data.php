@@ -341,7 +341,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         for ($i = 0; $i < count($getRates); $i++) {
             foreach ($getRates[$keys[$i]] as $key => $value) {
-                if ($key == 4) {
+                if ($key == "maximumPurchase") {
                     $getVal[] = $value;
                 }
             }
