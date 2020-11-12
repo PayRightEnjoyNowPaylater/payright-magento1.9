@@ -135,7 +135,8 @@
                     }
                
                     Element.insert(priceBoxes[i], {
-                        after: "<div class='payright'>Or " + installmentTextobj.noofrepayments + " " + installmentTextobj.repaymentfrequency + " payments at $" + installmentTextobj.LoanAmountPerPayment + " with " + Payright.Installments.config.template + " </div>"
+                        // after: "<div class='payright'>Or " + installmentTextobj.numberOfRepayments + " " + installmentTextobj.repaymentFrequency + " payments at $" + installmentTextobj.loanAmountPerPayment + " with " + Payright.Installments.config.template + " </div>"
+                        after: "<div class='payright'>From $" + installmentTextobj.loanAmountPerPayment + " a fortnight with " + Payright.Installments.config.template + " </div>"
                     });
                     // Element.addClassName(priceBoxes[i].nextSibling, this.config.className);
                 } else {

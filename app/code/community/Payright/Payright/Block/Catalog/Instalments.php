@@ -1,44 +1,38 @@
 <?php
 
-class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Template
-{
+class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Template {
     const XML_CONFIG_PREFIX = 'payright/payovertime_installments/';
 
-    protected function _construct()
-    {
+    protected function _construct() {
         // parent::_construct();
         // $this->setTemplate('payright/catalog/instalments.phtml');
     }
 
-    public function renderInstalments()
-    {
+    public function renderInstallments() {
         $productType = Mage::registry('current_product')->getTypeId();
-        $productPrice    = Mage::registry('current_product')->getPrice();
-        
+        $productPrice = Mage::registry('current_product')->getPrice();
+
         if ($productType == "configurable") {
-            $productPrice    = Mage::registry('current_product')->getPrice();
+            $productPrice = Mage::registry('current_product')->getPrice();
             $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
 
         } elseif ($productType == "simple") {
-            $productPrice    = Mage::registry('current_product')->getPrice();
+            $productPrice = Mage::registry('current_product')->getPrice();
             $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
 
         } elseif ($productType == "grouped") {
-
-    
+            // Do nothing
         } elseif ($productType == "bundle") {
-            $product         = Mage::getModel('catalog/product');
-            $_product        = $product->load(Mage::registry('current_product')->getId());
-            $productPrice    = Mage::getModel('bundle/product_price')->getTotalPrices($_product, 'min', 1);
+            $product = Mage::getModel('catalog/product');
+            $_product = $product->load(Mage::registry('current_product')->getId());
+            $productPrice = Mage::getModel('bundle/product_price')->getTotalPrices($_product, 'min', 1);
             $installmentText = Mage::helper('payright')->calculateSingleProductInstallment($productPrice);
         }
 
         return $installmentText;
-
     }
 
-    public function getHtmlTemplate()
-    {
+    public function getHtmlTemplate() {
         $result = Mage::getStoreConfig(self::XML_CONFIG_PREFIX . $this->getPageType() . '_html_template');
         $result = str_replace(
             '{skin_url}',
@@ -48,22 +42,19 @@ class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Templa
         return $result;
     }
 
-    public function getProductPrice()
-    {
+    public function getProductPrice() {
         $product_id = Mage::registry('current_product')->getPrice();
-        return $product_id;
 
+        return $product_id;
     }
 
-    public function getCssSelectors()
-    {
+    public function getCssSelectors() {
         $selectors = Mage::getStoreConfig(self::XML_CONFIG_PREFIX . $this->getPageType() . '_price_block_selectors');
         //print_r($selectors);
         return explode("\n", $selectors);
     }
 
-    public function getStoreConfigEnabled()
-    {
+    public function getStoreConfigEnabled() {
         $store = Mage::app()->getStore()->getStoreId();
         if (Mage::getStoreConfig('payment/payrightcheckout/active', $store)) {
             // plugin enabled / disabled
@@ -72,28 +63,24 @@ class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Templa
             return 0;
         }
     }
-    public function getStoreConfigMinAmount()
-    {
+
+    public function getStoreConfigMinAmount() {
         $store = Mage::app()->getStore()->getStoreId();
         if (Mage::getStoreConfig('payment/payrightcheckout/min_amount', $store)) {
             return (int)Mage::getStoreConfig('payment/payrightcheckout/min_amount', $store);
-
         } else {
             return 0;
         }
 
     }
 
-    public function getJsConfig()
-    {
+    public function getJsConfig() {
         return array(
-            'selectors'        => $this->getCssSelectors(),
-            'template'         => $this->getHtmlTemplate(),
-            'className'        => 'payright-installments-amount',
-            'payrightEnabled'  => $this->getStoreConfigEnabled(),
-            'minAmount'        => $this->getStoreConfigMinAmount(),
-            
-
+            'selectors' => $this->getCssSelectors(),
+            'template' => $this->getHtmlTemplate(),
+            'className' => 'payright-installments-amount',
+            'payrightEnabled' => $this->getStoreConfigEnabled(),
+            'minAmount' => $this->getStoreConfigMinAmount(),
         );
     }
 
