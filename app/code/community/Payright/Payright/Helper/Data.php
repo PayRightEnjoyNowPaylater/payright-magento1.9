@@ -79,12 +79,13 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
-        $client->setHeaders(array('Accept: application/json', 'Authorization: Bearer ' . $authToken));
+        $client->setHeaders('Accept: application/json');
+        $client->setHeaders('Authorization: Bearer ' . $authToken);
         $client->setConfig(array('timeout' => 15));
 
         $response = $client->request()->getBody();
 
-        $returnArray = array();
+        $returnArray = Mage::helper('core')->jsonDecode($response);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
