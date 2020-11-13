@@ -53,13 +53,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getPlanDataByCheckoutId($checkoutId) {
         $apiURL = "api/v1/checkouts/";
-        $authToken = $this->getAccessToken();
 
         $data = array(
             'checkoutId' => $checkoutId,
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $authToken);
+        $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
 
         if (!isset($response['error'])) {
             return $response;
@@ -79,15 +78,13 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
-        $client->setMethod(Zend_Http_Client::GET);
-        $client->setHeaders(array('Accept: application/json', 'Authorization: Bearer '.$authToken));
+        // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
+        $client->setHeaders(array('Accept: application/json', 'Authorization: Bearer ' . $authToken));
         $client->setConfig(array('timeout' => 15));
 
         $response = $client->request()->getBody();
 
         $returnArray = array();
-
-        Mage::log("data_rates: " . print_r($response['data']['rates'], 1), "payright.txt");
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
@@ -98,7 +95,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
             return $returnArray;
         } else {
-            Mage::log("reponse_error: " . print_r($response['error'], 1), "payright.txt");
             return $response['error'];
         }
     }
@@ -191,16 +187,16 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * Calculate repayment installment
      *
      * @param int $numberOfRepayments term for sale amount
-     * @param int $AccountKeepingFees account keeping fees
+     * @param int $accountKeepingFee account keeping fees
      * @param int $establishmentFees establishment fees
      * @param int $loanAmount loan amount
      * @param int $paymentProcessingFee processing fees for loan amount
      *
      * @return string
      */
-    public function calculateRepayment($numberOfRepayments, $AccountKeepingFees, $establishmentFees, $loanAmount, $paymentProcessingFee) {
+    public function calculateRepayment($numberOfRepayments, $accountKeepingFee, $establishmentFees, $loanAmount, $paymentProcessingFee) {
         $repaymentAmountInit = ((floatval($establishmentFees) + floatval($loanAmount)) / $numberOfRepayments);
-        $repaymentAmount = floatval($repaymentAmountInit) + floatval($AccountKeepingFees) + floatval($paymentProcessingFee);
+        $repaymentAmount = floatval($repaymentAmountInit) + floatval($accountKeepingFee) + floatval($paymentProcessingFee);
 
         return number_format($repaymentAmount, 2, '.', ',');
     }
@@ -338,14 +334,21 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public function getMaximumSaleAmount($getRates, $saleAmount) {
         $chkLoanLimit = 0;
+        $getVal[] = array();
 
-        $keys = array_keys($getRates);
+//        $keys = array_keys($getRates);
+//
+//        for ($i = 0; $i < count($getRates); $i++) {
+//            foreach ($getRates[$keys[$i]] as $key => $value) {
+//                if ($key == "maximumPurchase") {
+//                    $getVal[] = $value;
+//                }
+//            }
+//        }
 
-        for ($i = 0; $i < count($getRates); $i++) {
-            foreach ($getRates[$keys[$i]] as $key => $value) {
-                if ($key == "maximumPurchase") {
-                    $getVal[] = $value;
-                }
+        foreach ($getRates as $key => $value) {
+            if ($key == "maximumPurchase") {
+                $getVal[] = $value;
             }
         }
 
@@ -384,7 +387,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client->setMethod(Zend_Http_Client::POST);
         $client->setHeaders(array('Content-Type: application/json', 'Accept: application/json', 'Authorization: Bearer ' . $authToken));
         $client->setConfig(array('timeout' => 15));
-        if (!is_null($data)) {
+        if ($data) {
             $client->setParameterPost($data);
         }
 
@@ -392,7 +395,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $json = $client->request()->getBody();
             return Mage::helper('core')->jsonDecode($json);
         } catch (\Exception $e) {
-            return "Error";
+            return "Error: API POST failed";
         }
     }
 
@@ -423,7 +426,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
             return $returnEndpoints;
         } catch (Exception $e) {
-            echo 'Caught exception: ', $e->getMessage(), "\n";
+            echo 'Error: ', $e->getMessage(), "\n";
         }
     }
 
