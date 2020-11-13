@@ -85,9 +85,9 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $response = $client->request()->getBody();
 
-        // $response = $this->callPayrightAPI(null, $apiURL, $authToken);
-
         $returnArray = array();
+
+        Mage::log("data_rates: " . print_r($response['data']['rates'], 1), "payright.txt");
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
@@ -98,6 +98,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
             return $returnArray;
         } else {
+            Mage::log("reponse_error: " . print_r($response['error'], 1), "payright.txt");
             return $response['error'];
         }
     }
