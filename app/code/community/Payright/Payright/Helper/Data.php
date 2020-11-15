@@ -80,7 +80,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
         $client->setHeaders('Accept: application/json');
-        $client->setHeaders('Authorization: Bearer ' . $authToken);
+        $client->setHeaders('Authorization: ' . $authToken);
         $client->setConfig(array('timeout' => 15));
 
         $response = $client->request()->getBody();
@@ -386,7 +386,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         $client->setMethod(Zend_Http_Client::POST);
-        $client->setHeaders(array('Content-Type: application/json', 'Accept: application/json', 'Authorization: Bearer ' . $authToken));
+        $client->setHeaders(array('Content-Type: application/json', 'Accept: application/json', 'Authorization: ' . $authToken));
         $client->setConfig(array('timeout' => 15));
         if ($data) {
             $client->setParameterPost($data);
