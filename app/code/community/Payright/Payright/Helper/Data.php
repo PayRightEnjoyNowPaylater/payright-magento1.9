@@ -183,6 +183,76 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         }
     }
 
+    /*
+     * TEST FUNCTION ONLY
+     *
+     * @return string
+     */
+    public function calculateSingleProductInstallmentTest($saleAmount) {
+        $authToken = $this->getAccessToken();
+
+        $data = $this->performApiGetRates();
+
+        $getRates = $data['rates'];
+
+        // $payrightInstallmentApproval = $this->getMaximumSaleAmount($getRates, $saleAmount);
+        // Acquire 'establishment fees'
+        $establishmentFees = $data['establishmentFees'];
+
+        // We need the mentioned fees below, to calculate for 'payment frequency'
+        // and 'loan amount per repayment'
+        $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
+        $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
+
+        // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
+        $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
+
+        // Get your 'minimum deposit amount', from 'rates' data received and sale amount.
+        $getMinDeposit = $this->calculateMinDeposit($getRates, $saleAmount);
+
+        // Get your 'payment frequency', from 'monthly account keeping fee' and 'loan term'
+        $getPaymentFrequency = $this->getPaymentFrequency($accountKeepingFee, $loanTerm);
+
+        // Calculate and collect all 'number of repayments' and 'monthly account keeping fees'
+        $calculatedNumberOfRepayments = $getPaymentFrequency['numberOfRepayments'];
+        $calculatedAccountKeepingFees = $getPaymentFrequency['accountKeepingFees'];
+
+        // Get 'loan amount', for example: 'sale amount' - 'minimum deposit amount' = loan amount.
+        $loanAmount = $saleAmount - $getMinDeposit;
+
+        // For 'total credit required' output. Format the 'loan amount', into currency format.
+        $formattedLoanAmount = number_format((float)$loanAmount, 2, '.', '');
+
+        // Process 'establishment fees', from 'loan term' and 'establishment fees' (response)
+        $resEstablishmentFees = $this->getEstablishmentFees($loanTerm, $establishmentFees);
+
+        // TODO Keep or discard below? Currently, unused.
+        // $establishmentFeePerPayment = $resEstablishmentFees / $calculatedNumberOfRepayments;
+        // $loanAmountPerPayment = $formattedLoanAmount / $calculatedNumberOfRepayments;
+
+        // Calculate repayment, to get 'loan amount' as 'loan amount per payment'.
+        $calculateRepayments = $this->calculateRepayment(
+            $calculatedNumberOfRepayments,
+            $calculatedAccountKeepingFees,
+            $resEstablishmentFees,
+            $loanAmount,
+            $paymentProcessingFee);
+
+        // The entire breakdown for calculated single product 'installment'.
+        $dataResponseArray['loanAmount'] = $loanAmount;
+        $dataResponseArray['establishmentFee'] = $resEstablishmentFees;
+        $dataResponseArray['minDeposit'] = $getMinDeposit;
+        $dataResponseArray['totalCreditRequired'] = $this->totalCreditRequired($formattedLoanAmount, $resEstablishmentFees);
+        $dataResponseArray['accountKeepFees'] = $accountKeepingFee;
+        $dataResponseArray['processingFees'] = $paymentProcessingFee;
+        $dataResponseArray['saleAmount'] = $saleAmount;
+        $dataResponseArray['numberOfRepayments'] = $calculatedNumberOfRepayments;
+        $dataResponseArray['repaymentFrequency'] = 'Fortnightly';
+        $dataResponseArray['loanAmountPerPayment'] = $calculateRepayments;
+
+        return $dataResponseArray;
+    }
+
     /**
      * Calculate repayment installment
      *
@@ -194,7 +264,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      *
      * @return string
      */
-    public function calculateRepayment($numberOfRepayments, $accountKeepingFee, $establishmentFees, $loanAmount, $paymentProcessingFee) {
+    public function calculateRepayment(
+        $numberOfRepayments,
+        $accountKeepingFee,
+        $establishmentFees,
+        $loanAmount,
+        $paymentProcessingFee) {
         $repaymentAmountInit = ((floatval($establishmentFees) + floatval($loanAmount)) / $numberOfRepayments);
         $repaymentAmount = floatval($repaymentAmountInit) + floatval($accountKeepingFee) + floatval($paymentProcessingFee);
 
@@ -234,7 +309,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @param array $returnArray noofpayments and accountkeeping fees
      */
 
-    public function getPaymentFrequency($accountKeepingFee, $loanTerm) {
+    public
+    function getPaymentFrequency($accountKeepingFee, $loanTerm) {
         $repaymentFrequency = 'Fortnightly';
 
         if ($repaymentFrequency == 'Weekly') {
@@ -272,7 +348,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return float loanamount
      */
 
-    public function fetchLoanTermForSale($rates, $saleAmount) {
+    public
+    function fetchLoanTermForSale($rates, $saleAmount) {
         $ratesArray = array();
         //$generateLoanTerm = '';
 
@@ -301,7 +378,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return string $h establishment fees
      */
 
-    public function getEstablishmentFees($loanTerm, $establishmentFees) {
+    public
+    function getEstablishmentFees($loanTerm, $establishmentFees) {
         $fee_bandArray = array();
         $feeBandCalculator = 0;
 
@@ -332,7 +410,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return int allowed loanlimit in form 0 or 1, 0 means sale amount is still in limit and 1 is over limit
      */
 
-    public function getMaximumSaleAmount($getRates, $saleAmount) {
+    public
+    function getMaximumSaleAmount($getRates, $saleAmount) {
         $chkLoanLimit = 0;
         $getVal[] = array();
 
@@ -366,7 +445,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @param float $establishmentFees establishmentFees
      * @return float total credit allowed
      */
-    public static function totalCreditRequired($loanAmount, $establishmentFees) {
+    public
+    static function totalCreditRequired($loanAmount, $establishmentFees) {
         $totalCreditRequired = (floatval($loanAmount) + floatval($establishmentFees));
 
         return number_format((float)$totalCreditRequired, 2, '.', '');
@@ -378,7 +458,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @param false $authToken
      * @return string
      */
-    public function callPayrightAPI($data = null, $apiURL, $authToken = false) {
+    public
+    function callPayrightAPI($data = null, $apiURL, $authToken = false) {
 
         $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
@@ -399,12 +480,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         }
     }
 
-    public function getConfigValue($field) {
+    public
+    function getConfigValue($field) {
         $store = Mage::app()->getStore()->getStoreId();
         return Mage::getStoreConfig('payment/payrightcheckout/' . $field, $store);
     }
 
-    public function getEnvironmentEndpoints() {
+    public
+    function getEnvironmentEndpoints() {
         // If the Payright 'Environment Mode' is set to 'sandbox', then get the 'sandbox' API endpoints.
         $envMode = $this->getConfigValue('sandbox');
 
