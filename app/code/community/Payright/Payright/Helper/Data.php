@@ -116,8 +116,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
             if (isset($getRates)) {
                 $payrightInstallmentApproval = $this->getMaximumSaleAmount($getRates, $saleAmount);
-                //if ($payrightInstallmentApproval == 0) {
-                if (true) {
+                if ($payrightInstallmentApproval == 0) {
                     // Acquire 'establishment fees'
                     $establishmentFees = $data['establishmentFees'];
 

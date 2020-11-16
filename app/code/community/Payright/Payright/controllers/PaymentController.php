@@ -3,11 +3,21 @@
 // app/code/local/Envato/Custompaymentmethod/controllers/PaymentController.php
 class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Action {
 
-    private $checkoutSession;
+    /**
+     * Checkout session object
+     *
+     * @var \Magento\Checkout\Model\Session\Proxy
+     */
+    protected $checkoutSession;
 
-    public function __construct(
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession
-    ) {
+    /**
+     * Constructor
+     *
+     * @param  \Magento\Checkout\Model\Session\Proxy $checkoutSession
+     * @return void
+     */
+    public function __construct(\Magento\Checkout\Model\Session\Proxy $checkoutSession)
+    {
         $this->checkoutSession = $checkoutSession;
     }
 
