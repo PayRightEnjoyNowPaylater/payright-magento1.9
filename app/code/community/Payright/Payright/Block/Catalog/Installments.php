@@ -1,11 +1,11 @@
 <?php
 
-class Payright_Payright_Block_Catalog_Instalments extends Mage_Core_Block_Template {
+class Payright_Payright_Block_Catalog_Installments extends Mage_Core_Block_Template {
     const XML_CONFIG_PREFIX = 'payright/payovertime_installments/';
 
     protected function _construct() {
         // parent::_construct();
-        // $this->setTemplate('payright/catalog/instalments.phtml');
+        // $this->setTemplate('payright/catalog/installments.phtml');
     }
 
     public function renderInstallments() {

@@ -102,7 +102,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
     /*
      * Calculate product installments, for current product.
-     * The 'Block/Catalog/Instalments.php' performs 'renderInstallments()'.
+     * The 'Block/Catalog/Installments.php' performs 'renderInstallments()'.
      *
      * @return string
      */

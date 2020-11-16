@@ -7,11 +7,11 @@
  *
  * How to use:
  *
- * Define configuration (@see Payright_Payright_Block_Catalog_Instalments::getJsConfig() for detail):
- * Payright.Instalments.config = { ... }
+ * Define configuration (@see Payright_Payright_Block_Catalog_Installments::getJsConfig() for detail):
+ * Payright.Installments.config = { ... }
  *
  * Render installments amount on page:
- * Payright.Instalments.render();
+ * Payright.Installments.render();
  *
  * @see app/design/frontend/base/default/template/Payright/catalog/installments.phtml
  */
@@ -30,11 +30,11 @@
         };
     }
     var Payright = window.Payright = window.Payright || {};
-    Payright.Instalments = Payright.Instalments || {};
+    Payright.Installments = Payright.Installments || {};
     Payright.ProductPrice = Payright.ProductPrice || {};
-    /** @see Payright_Payright_Block_Catalog_Instalments::getJsConfig() for details */
-    Payright.Instalments.config = null;
-    Payright.Instalments.productprice = function () {
+    /** @see Payright_Payright_Block_Catalog_Installments::getJsConfig() for details */
+    Payright.Installments.config = null;
+    Payright.Installments.productprice = function () {
         // check all pre-requisites
         if (!Prototype || !Element) {
             console.warn('Payright: window.Prototype or window.Element is not defined, cannot render installments amount');
@@ -45,7 +45,7 @@
             return;
         }
         if (!this.config instanceof Object) {
-            console.warn('Payright: Payright.Instalments.config is not set, cannot render installments amount');
+            console.warn('Payright: Payright.Installments.config is not set, cannot render installments amount');
             return;
         }
         // find all price-box elements (according to configured selectors)
@@ -76,7 +76,7 @@
             }
         }
     };
-    Payright.Instalments.render = function (installmentTextobj) {
+    Payright.Installments.render = function (installmentTextobj) {
 
         if (installmentTextobj == 'auth_token_error') {
             console.log(installmentTextobj);
@@ -85,7 +85,7 @@
         }
         if (installmentTextobj == 'exceed_amount') {
             console.log(installmentTextobj);
-            console.warn("Payright instalments cannot be rendered, please make sure the merchant credentials are correct");
+            console.warn("Payright installments cannot be rendered, please make sure the merchant credentials are correct");
             return;
         }
         // check all pre-requisites
@@ -99,7 +99,7 @@
         }
         if (!this.config instanceof Object) {
             console.log(this.config instanceof Object);
-            console.warn('Payright: Payright.Instalments.config is not set, cannot render installments amount');
+            console.warn('Payright: Payright.Installments.config is not set, cannot render installments amount');
             return;
         }
         // find all price-box elements (according to configured selectors)
@@ -137,7 +137,7 @@
                     }
 
                     Element.insert(priceBoxes[i], {
-                        after: "<div class='payright'>From $" + installmentTextobj.loanAmountPerPayment + " a fortnight with " + Payright.Instalments.config.template + " </div>"
+                        after: "<div class='payright'>From $" + installmentTextobj.loanAmountPerPayment + " a fortnight with " + Payright.Installments.config.template + " </div>"
                     });
                     // Element.addClassName(priceBoxes[i].nextSibling, this.config.className);
                 } else {
