@@ -36,8 +36,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $expiresAt
             );
 
-            var_dump($initialiseTransaction);
-
             // Get the endpoints from the config files
             $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
 
@@ -53,6 +51,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Restore cart / quote - for users who click 'Back' browser button
             $this->_handleCart(true);
 
+            $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
+
+            /*
             $this->loadLayout();
 
             $block = $this->getLayout()->createBlock(
@@ -64,6 +65,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
+            */
         }
     }
 
