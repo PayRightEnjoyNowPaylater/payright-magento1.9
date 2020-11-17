@@ -87,13 +87,13 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // TODO Add validation from response source. For example, get 'Access Token'?
             $validated = true;
 
-            // do the call to getplan data for the payright transaction.
+            // Get plan data for the payright transaction.
             $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
-            $result = json_decode($json['data']);
+            $result = $json['data'];
 
             $resPlanId = isset($result->planId) ? $result->planId : null;
             $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
-            $resStatus = isset($result->status) ? $result->status : null;
+            $resStatus = isset($result->status) ? $result->status : null; // TODO Not using it YET, using 'status' URL param.
 
             // TODO Update status check, from query param to work with response status value.
             if ($validated) {
