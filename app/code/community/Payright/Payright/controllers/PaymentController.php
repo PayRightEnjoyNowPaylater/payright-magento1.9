@@ -95,11 +95,11 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
         $result = $json['data'];
 
+        var_dump($result);
+
         $resPlanId = isset($result->planId) ? $result->planId : null;
         $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
         $resStatus = isset($result->status) ? $result->status : null; // TODO Not using it YET, using 'status' URL param.
-
-        // var_dump($result);
 
         // TODO Update status check, from query param to work with response status value.
         // if ($validated) {
