@@ -28,8 +28,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     public function performApiCheckout($merchantReference, $saleAmount, $redirectUrl, $expiresAt) {
-        $apiURL = "api/v1/checkouts";
-
+//        $apiURL = "api/v1/checkouts";
+//
         $data = array(
             'merchantReference' => $merchantReference,
             'saleAmount' => $saleAmount,
@@ -38,18 +38,29 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             'expiresAt' => $expiresAt
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
+        // $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
 
-        /*
-        $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/checkouts");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer ".$this->getAccessToken()));
+        $curl = curl_init();
 
-        $result = curl_exec($ch);
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://byronbay-dev.payright.com.au/api/v1/checkouts/",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 15,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => json_encode($data),
+          CURLOPT_HTTPHEADER => array(
+            "Authorization: Bearer ".$this->getAccessToken(),
+            "Content-Type: application/json"
+          ),
+        ));
+
+        $result = curl_exec($curl);
 
         $response = json_decode($result, true);
-        */
 
         if (!isset($response['error'])) {
             return $response;
