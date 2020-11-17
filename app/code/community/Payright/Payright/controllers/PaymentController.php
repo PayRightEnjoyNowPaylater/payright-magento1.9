@@ -28,7 +28,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $dt->setTimeZone(new DateTimeZone('UTC'));
             $expiresAt = $dt->format('Y-m-d\TH-i-s.\0\0\0\Z');
 
-            // Initialize the Payright transaction.
+            // Initialize the Payright transaction. To get the 'checkoutId'
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
                 $merchantReference,
                 $saleAmount,
