@@ -40,7 +40,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
 
             // Build the redirect, to 'checkout portal'.
-            $builtAppUrl = $this->buildRedirectUrl($apiEndpoints, $initialiseTransaction['data']['checkoutId']);
+            $builtAppUrl = $this->buildRedirectUrl($apiEndpoints);
 
             $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
             $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
@@ -57,7 +57,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 'Mage_Core_Block_Template',
                 'payright',
                 array('template' => 'payright/redirect.phtml')
-            )->setData('builtappendpoint', $builtAppUrl);
+            )->setData('builtappendpoint', $builtAppUrl)
+            ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
@@ -150,8 +151,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         return;
     }
 
-    public function buildRedirectUrl($envConfigArray, $checkoutId) {
-        return $envConfigArray['AppEndpoint'] . "?checkoutId=" . $checkoutId;
+    public function buildRedirectUrl($envConfigArray) {
+        return $envConfigArray['AppEndpoint'];
     }
 
     private function _handleCart($isRestoreCart, $cancel = false) {
