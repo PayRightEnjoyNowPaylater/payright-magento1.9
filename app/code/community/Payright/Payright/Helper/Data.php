@@ -80,12 +80,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
         $client->setHeaders('Accept: application/json');
-        $client->setHeaders('Authorization: ' . $authToken);
+        $client->setHeaders('Authorization: Bearer ' . $authToken);
         $client->setConfig(array('timeout' => 15));
 
         $response = $client->request()->getBody();
 
-        $returnArray = Mage::helper('core')->jsonDecode($response);
+        $returnArray = json_decode($response);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
@@ -392,7 +392,9 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         $client->setMethod(Zend_Http_Client::POST);
-        $client->setHeaders(array('Content-Type: application/json', 'Accept: application/json', 'Authorization: ' . $authToken));
+        $client->setHeaders('Content-Type: application/json');
+        $client->setHeaders('Accept: application/json');
+        $client->setHeaders('Authorization: Bearer ' . $authToken);
         $client->setConfig(array('timeout' => 15));
         if ($data) {
             $client->setParameterPost($data);
