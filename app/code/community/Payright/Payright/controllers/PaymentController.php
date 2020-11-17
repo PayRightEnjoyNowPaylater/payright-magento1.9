@@ -71,70 +71,66 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
     // The response action is triggered when your gateway sends back a response after processing the customer's payment
     public function responseAction() {
-        if ($this->getRequest()->isGet()) {
+        // $this->getRequest()->isGet()
 
-            /*
-            /* Your gateway's code to make sure the response you
-            /* just got is from the gateway and not from some weirdo.
-            /* This generally has some checksum or other checks,
-            /* and is provided by the gateway.
-            /* For now, we assume that the gateway's response is valid
-             */
-            $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
-            $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
-            $status = Mage::app()->getRequest()->getParam('status');
+        /*
+        /* Your gateway's code to make sure the response you
+        /* just got is from the gateway and not from some weirdo.
+        /* This generally has some checksum or other checks,
+        /* and is provided by the gateway.
+        /* For now, we assume that the gateway's response is valid
+         */
+        $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
+        $status = Mage::app()->getRequest()->getParam('status');
 
-            // TODO Add validation from response source. For example, get 'Access Token'?
-            $validated = true;
+        // TODO Add validation from response source. For example, get 'Access Token'?
+        $validated = true;
 
-            // Get plan data for the payright transaction.
-            $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
-            $result = $json['data'];
+        // Get plan data for the payright transaction.
+        $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
+        $result = $json['data'];
 
-            $resPlanId = isset($result->planId) ? $result->planId : null;
-            $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
-            $resStatus = isset($result->status) ? $result->status : null; // TODO Not using it YET, using 'status' URL param.
+        $resPlanId = isset($result->planId) ? $result->planId : null;
+        $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
+        $resStatus = isset($result->status) ? $result->status : null; // TODO Not using it YET, using 'status' URL param.
 
-            // TODO Update status check, from query param to work with response status value.
-            if ($validated) {
-                if ($status != "COMPLETE") {
-                    $this->cancelAction();
-                } else {
-                    // Payment was successful, so update the order's state, send order email and move to the success page
-                    $order = Mage::getModel('sales/order');
-                    $order->loadByIncrementId($orderId);
-                    $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
-
-                    // Set Payright details.
-                    $order->setPayrightPlanId($resPlanId);
-                    $order->setPayrightCheckoutId($checkoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
-
-                    // Send customer the email of order
-                    $order->sendNewOrderEmail();
-                    $order->setEmailSent(true);
-
-                    // Save the order
-                    $order->save();
-
-                    // Save order ID in sales_flat_order_payment table
-                    $payment = $order->getPayment();
-                    $payment->setData('payright_plan_number', $resPlanNumber);
-                    $payment->save();
-
-                    // Since we're done, unset quote Id
-                    Mage::getSingleton('checkout/session')->unsQuoteId();
-
-                    // Redirect customer to success page
-                    Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
-                }
-            } else {
-                // There is a problem in the response we got
+        // TODO Update status check, from query param to work with response status value.
+        if ($validated) {
+            if ($status != "COMPLETE") {
                 $this->cancelAction();
-                Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/failure', array('_secure' => true));
+            } else {
+                // Payment was successful, so update the order's state, send order email and move to the success page
+                $order = Mage::getModel('sales/order');
+                $order->loadByIncrementId($orderId);
+                $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
+
+                // Set Payright details.
+                $order->setPayrightPlanId($resPlanId);
+                $order->setPayrightCheckoutId($checkoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
+
+                // Send customer the email of order
+                $order->sendNewOrderEmail();
+                $order->setEmailSent(true);
+
+                // Save the order
+                $order->save();
+
+                // Save order ID in sales_flat_order_payment table
+                $payment = $order->getPayment();
+                $payment->setData('payright_plan_number', $resPlanNumber);
+                $payment->save();
+
+                // Since we're done, unset quote Id
+                Mage::getSingleton('checkout/session')->unsQuoteId();
+
+                // Redirect customer to success page
+                Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
             }
         } else {
-            echo "Inside the order";
-            //Mage_Core_Controller_Varien_Action::_redirect('');
+            // There is a problem in the response we got
+            $this->cancelAction();
+            Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/failure', array('_secure' => true));
         }
     }
 
