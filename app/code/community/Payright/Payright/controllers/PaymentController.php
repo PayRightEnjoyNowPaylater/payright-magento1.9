@@ -31,9 +31,12 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Capture the 'orderId', for further processing.
             $capturedOrderId = $orderId;
 
+            // Build 'merchantReference'
+            $merchantReference = "MagePayright_" . $capturedOrderId;
+
             // Initialize the Payright transaction. To get the 'checkoutId'.
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
-                "MagePayright_" . $capturedOrderId,
+                $merchantReference,
                 $saleAmount,
                 $redirectUrl,
                 $expiresAt
@@ -102,44 +105,44 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
         // TODO Update status check, from query param to work with response status value.
         // if ($validated) {
-            if ($status != "COMPLETE") {
-                $this->cancelAction();
-            } else {
-                // Payment was successful, so update the order's state, send order email and move to the success page
-                $order = Mage::getModel('sales/order');
-                $order->loadByIncrementId($resOrderId);
-                $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
+        if ($status != "COMPLETE") {
+            $this->cancelAction();
+        } else {
+            // Payment was successful, so update the order's state, send order email and move to the success page
+            $order = Mage::getModel('sales/order');
+            $order->loadByIncrementId($resOrderId);
+            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
 
-                // Set Payright details.
-                $order->setPayrightPlanId($resPlanId);
-                $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
+            // Set Payright details.
+            $order->setPayrightPlanId($resPlanId);
+            $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
 
-                // TODO sendNewOrderEmail() - Uncaught TypeError: Argument 1 passed to Mage_Payment_Helper_Data::getInfoBlock() must be an
-                // instance of Mage_Payment_Model_Info, boolean given
-                // Send customer the email of order
-                $order->sendNewOrderEmail();
-                $order->setEmailSent(true);
+            // TODO sendNewOrderEmail() - Uncaught TypeError: Argument 1 passed to Mage_Payment_Helper_Data::getInfoBlock() must be an
+            // instance of Mage_Payment_Model_Info, boolean given
+            // Send customer the email of order
+            $order->sendNewOrderEmail();
+            $order->setEmailSent(true);
 
-                // Save the order
-                $order->save();
+            // Save the order
+            $order->save();
 
-                // Save order ID in sales_flat_order_payment table
-                $payment = $order->getPayment();
-                $payment->setData('payright_plan_number', $resPlanNumber);
-                $payment->save();
+            // Save order ID in sales_flat_order_payment table
+            $payment = $order->getPayment();
+            $payment->setData('payright_plan_number', $resPlanNumber);
+            $payment->save();
 
-                // Since we're done, unset quote Id
-                Mage::getSingleton('checkout/session')->unsQuoteId();
+            // Since we're done, unset quote Id
+            Mage::getSingleton('checkout/session')->unsQuoteId();
 
-                // Redirect customer to success page
-                // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
+            // Redirect customer to success page
+            // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
 
-                $this->_redirect('checkout/onepage/success', array('_secure' => true));
-            }
+            $this->_redirect('checkout/onepage/success', array('_secure' => true));
+        }
         //} else {
-            // There is a problem in the response we got
-            // $this->cancelAction();
-            // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/failure', array('_secure' => true));
+        // There is a problem in the response we got
+        // $this->cancelAction();
+        // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/failure', array('_secure' => true));
         //}
     }
 
