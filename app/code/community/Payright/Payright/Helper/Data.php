@@ -82,14 +82,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * TODO Convert curl to Zend_Http_Client, end this nightmare!
      */
     public function performApiGetRates() {
-        // $apiURL = "api/v1/merchant/configuration";
-        // $authToken = $this->getAccessToken();
-
         $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
         $client = new Zend_Http_Client($apiEndpoint . "api/v1/merchant/configuration");
-        // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
         $client->setHeaders(
             array(
                 'Accept' => 'application/json',
@@ -97,8 +93,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             )
         );
         $client->setConfig(array('timeout' => 15));
-
-        // $response = $client->request()->getBody();
 
         $response = json_decode($client->request()->getBody(), true);
 
@@ -110,9 +104,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
             $returnArray['otherFees'] = $response['data']['otherFees'];
-            // TODO Keep below if need to convert $response['data']['otherFees'];
-            // $otherFees[] = $response['data']['otherFees'];
-            // $returnArray['otherFees'] = $otherFees;
 
             return $returnArray;
         } else {
@@ -135,11 +126,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $getRates = $data['rates'];
 
             if (isset($getRates)) {
+                // TODO Re-enable the $payrightInstallmentApproval IF condition
                 $payrightInstallmentApproval = $this->getMaximumSaleAmount($getRates, $saleAmount);
                 if (true) {
                     // if ($payrightInstallmentApproval == 0) {
-                    // Acquire 'establishment fees'
-                    // $establishmentFees = $data['establishmentFees'];
 
                     // We need the mentioned 'otherFees' below, to calculate for 'payment frequency'
                     // and 'loan amount per repayment'
@@ -235,15 +225,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return float mindeposit
      */
     public function calculateMinDeposit($getRates, $saleAmount) {
-        /*
-        for ($i = 0; $i < count($getRates); $i++) {
-            for ($l = 0; $l < count($getRates[$i]); $l++) {
-                if ($getRates[$i]['term'] == 4) {
-                    $per[] = $getRates[$i]['minimumDepositPercentage'];
-                }
-            }
-        }
-        */
         foreach ($getRates as $key => $value) {
             $per[] = $value["minimumDepositPercentage"];
         }
