@@ -28,8 +28,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     public function performApiCheckout($merchantReference, $saleAmount, $redirectUrl, $expiresAt) {
-        // $apiURL = "api/v1/checkouts";
+        $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
+        $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
+        // Prepare json raw data payload
         $data = array(
             'merchantReference' => $merchantReference,
             'saleAmount' => $saleAmount,
@@ -38,15 +40,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             'expiresAt' => $expiresAt
         );
 
-        // $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
-
-        $client = new Zend_Http_Client("https://byronbay-dev.payright.com.au/api/v1/checkouts");
-        // $client->setMethod(Zend_Http_Client::POST);
+        $client = new Zend_Http_Client($apiEndpoint . "/api/v1/checkouts");
         $client->setHeaders(
             array(
-                'Accept'                => 'application/json',
-                'Content-Type'          => 'application/json',
-                'Authorization'         => 'Bearer '.$this->getAccessToken()
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $this->getAccessToken()
             )
         );
         $client->setConfig(array('timeout' => 15));
@@ -54,42 +53,39 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $response = $client->setRawData(json_encode($data), 'application/json')->request('POST');
 
         try {
-            // $json = $client->request()->getBody();
-            // return Mage::helper('core')->jsonDecode($json); // TODO Don't use this?
-            // return json_decode($json, true);
             return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             return "Error";
         }
-
-//        if (!isset($response['error'])) {
-//            return $response;
-//        } else {
-//            return "Error";
-//        }
     }
 
     /*
+     * Get customer payment plan from new checkout, by 'checkoutId'
      *
      */
     public function getPlanDataByCheckoutId($checkoutId) {
-        $apiURL = "api/v1/checkouts/";
+        $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
+        $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
-        $data = array(
-            'checkoutId' => $checkoutId,
+        $client = new Zend_Http_Client($apiEndpoint . "/api/v1/checkouts/" . $checkoutId);
+        $client->setHeaders(
+            array(
+                'Accept' => 'application/json',
+            )
         );
-
-        $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
+        $client->setConfig(array('timeout' => 15));
 
         if (!isset($response['error'])) {
-            return $response;
+            return json_decode($client->request()->getBody(), true);
         } else {
             return "Error";
         }
     }
 
     /*
-     * Retrive data of rates, establishmentFees and otherFees
+     * Retrieve data of rates, establishmentFees and otherFees
+     *
+     * TODO Convert curl to Zend_Http_Client, end this nightmare!
      */
     public function performApiGetRates() {
         // $apiURL = "api/v1/merchant/configuration";
@@ -100,14 +96,18 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         // $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
-        // $client->setHeaders('Accept: application/json');
-        // $client->setHeaders('Authorization:' . $authToken);
+//        $client->setHeaders(
+//            array(
+//                'Accept' => 'application/json',
+//                'Authorization' => 'Bearer ' . $this->getAccessToken()
+//            )
+//        );
         // $client->setConfig(array('timeout' => 15));
 
         $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/merchant/configuration");
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer ".$authToken));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $authToken));
 
         $result = curl_exec($ch);
 
@@ -150,7 +150,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             if (isset($getRates)) {
                 $payrightInstallmentApproval = $this->getMaximumSaleAmount($getRates, $saleAmount);
                 if (true) {
-                // if ($payrightInstallmentApproval == 0) {
+                    // if ($payrightInstallmentApproval == 0) {
                     // Acquire 'establishment fees'
                     // $establishmentFees = $data['establishmentFees'];
 
