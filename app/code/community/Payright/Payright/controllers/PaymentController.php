@@ -85,7 +85,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $status = Mage::app()->getRequest()->getParam('status');
 
         // TODO Add validation from response source. For example, get 'Access Token'?
-        $validated = true;
+        // $validated = true;
 
         // Get plan data for the payright transaction.
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
@@ -96,7 +96,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $resStatus = isset($result->status) ? $result->status : null; // TODO Not using it YET, using 'status' URL param.
 
         // TODO Update status check, from query param to work with response status value.
-        if ($validated) {
+        // if ($validated) {
             if ($status != "COMPLETE") {
                 $this->cancelAction();
             } else {
@@ -127,11 +127,11 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 // Redirect customer to success page
                 Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
             }
-        } else {
+        //} else {
             // There is a problem in the response we got
-            $this->cancelAction();
-            Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/failure', array('_secure' => true));
-        }
+            // $this->cancelAction();
+            // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/failure', array('_secure' => true));
+        //}
     }
 
     // The cancel action is triggered when an order is to be cancelled
