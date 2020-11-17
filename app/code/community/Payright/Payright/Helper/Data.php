@@ -316,13 +316,13 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public
     function getEstablishmentFees($loanTerm, $establishmentFees) {
-        $fee_bandArray = array();
+        $fee_bandArray = null;
         $feeBandCalculator = 0;
 
         foreach ($establishmentFees as $key => $row) {
             $fee_bandArray[$key]['term'] = $row['term'];
-            $fee_bandArray[$key]['initial_est_fee'] = $row['initialEstFee'];
-            $fee_bandArray[$key]['repeat_est_fee'] = $row['repeatEstFee'];
+            $fee_bandArray[$key]['initialEstFee'] = $row['initialEstFee'];
+            $fee_bandArray[$key]['initialEstFee'] = $row['repeatEstFee'];
 
             if ($fee_bandArray[$key]['term'] == $loanTerm) {
                 $h = $row['initialEstFee'];
