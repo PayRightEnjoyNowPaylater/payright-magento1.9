@@ -93,24 +93,16 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client->setHeaders(
             array(
                 'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->getAccessToken()
             )
         );
         $client->setConfig(array('timeout' => 15));
 
-//        $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/merchant/configuration");
-//        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $authToken));
-//
-//        $result = curl_exec($ch);
-//
-//        $response = json_decode($result, true);
-
         $returnArray = null;
 
         $response = json_decode($client->request()->getBody(), true);
+
+        var_dump($response);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
