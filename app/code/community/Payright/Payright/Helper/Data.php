@@ -92,7 +92,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
             $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
-            $returnArray['otherFees'] = json_decode($response['data']['otherFees'], true);
+            $returnArray['otherFees'] = $response['data']['otherFees'];
 
             return $returnArray;
         } else {
