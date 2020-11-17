@@ -26,11 +26,6 @@ class Payright_Payright_Block_Catalog_Installments extends Mage_Core_Block_Templ
             $productPrice = Mage::getModel('bundle/product_price')->getTotalPrices($_product, 'min', 1);
         }
 
-        // Prepare json decode conversion for these two fields from responses
-        // This is for 'installments.phtml' where it is json_encode() happening.
-        $installmentText['accountKeepingFee'] = json_decode($installmentText['accountKeepingFee'], true);
-        $installmentText['paymentProcessingFee'] = json_decode($installmentText['paymentProcessingFee'], true);
-
         return $installmentText;
     }
 

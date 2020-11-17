@@ -123,8 +123,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
                     // We need the mentioned fees below, to calculate for 'payment frequency'
                     // and 'loan amount per repayment'
-                    $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
-                    $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
+
+                    // Prepare json decode conversion for these two fields from responses
+                    // This is for 'installments.phtml' where it is json_encode() happening.
+                    $otherFees = json_decode($data['otherFees'], true);
+                    $accountKeepingFee = $otherFees['monthlyAccountKeepingFee'];
+                    $paymentProcessingFee = $otherFees['paymentProcessingFee'];
 
                     // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
                     $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
