@@ -40,6 +40,16 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
 
+        $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/checkouts");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer ".$this->getAccessToken()));
+
+        $result = curl_exec($ch);
+
+        $response = json_decode($result, true);
+
+
         if (!isset($response['error'])) {
             return $response;
         } else {
@@ -340,14 +350,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             // $fee_bandArray[$key]['repeatEstFee'] = $estFee['repeatEstFee'];
 
             if ($estFee['term'] == $loanTerm) {
-                $h = $estFee['initialEstFee'];
+                $initialEstFee = $estFee['initialEstFee'];
             }
 
             // $feeBandCalculator++;
         }
 
-        if (isset($h)) {
-            return $h;
+        if (isset($initialEstFee)) {
+            return $initialEstFee;
         } else {
             return 0;
         }
@@ -405,7 +415,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return string
      */
     public
-    function callPayrightAPI($data, $apiURL, $authToken = false) {
+    function callPayrightAPI($data, $apiURL, $authToken) {
 
         $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
@@ -414,7 +424,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client->setMethod(Zend_Http_Client::POST);
         $client->setHeaders('Content-Type: application/json');
         $client->setHeaders('Accept: application/json');
-        $client->setHeaders('Authorization:' . $authToken);
+        $client->setHeaders('Authorization: Bearer' . $authToken); // TODO added Bearer
         $client->setConfig(array('timeout' => 15));
         if ($data) {
             $client->setParameterPost($data);
@@ -422,7 +432,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         try {
             $json = $client->request()->getBody();
-            return Mage::helper('core')->jsonDecode($json);
+            // return Mage::helper('core')->jsonDecode($json); // TODO Don't use this?
+            return json_decode($json, true);
         } catch (\Exception $e) {
             return "Error: API POST failed";
         }
