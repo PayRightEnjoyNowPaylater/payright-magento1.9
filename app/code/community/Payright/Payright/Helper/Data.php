@@ -73,7 +73,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 //                'Accept' => 'application/json',
 //            )
 //        );
-        //$client->setConfig(array('timeout' => 15));
+//        $client->setConfig(array('timeout' => 15));
 
         $client = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/");
         $client->setParameterGet('checkoutId', $checkoutId);
