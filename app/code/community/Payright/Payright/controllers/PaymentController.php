@@ -36,36 +36,34 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $expiresAt
             );
 
-            if(isset($initialiseTransaction['data']['checkoutId'])) {
-                // Get the endpoints from the config files
-                $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
+            var_dump($initialiseTransaction);
 
-                // Build the redirect, to 'checkout portal'.
-                $builtAppUrl = $this->buildRedirectUrl($apiEndpoints);
+            // Get the endpoints from the config files
+            $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
 
-                // $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
-                // $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
+            // Build the redirect, to 'checkout portal'.
+            $builtAppUrl = $this->buildRedirectUrl($apiEndpoints);
 
-                // Clear session values.
-                // Mage::getSingleton('customer/session')->unsPayrightAccessToken();
+            // $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
+            // $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
 
-                // Restore cart / quote - for users who click 'Back' browser button
-                $this->_handleCart(true);
+            // Clear session values.
+            // Mage::getSingleton('customer/session')->unsPayrightAccessToken();
 
-                $this->loadLayout();
+            // Restore cart / quote - for users who click 'Back' browser button
+            $this->_handleCart(true);
 
-                $block = $this->getLayout()->createBlock(
-                    'Mage_Core_Block_Template',
-                    'payright',
-                    array('template' => 'payright/redirect.phtml')
-                )->setData('builtappendpoint', $builtAppUrl)
-                    ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
+            $this->loadLayout();
 
-                $this->getLayout()->getBlock('content')->append($block);
-                $this->renderLayout();
-            } else {
-                var_dump($initialiseTransaction);
-            }
+            $block = $this->getLayout()->createBlock(
+                'Mage_Core_Block_Template',
+                'payright',
+                array('template' => 'payright/redirect.phtml')
+            )->setData('builtappendpoint', $builtAppUrl)
+                ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
+
+            $this->getLayout()->getBlock('content')->append($block);
+            $this->renderLayout();
         }
     }
 
@@ -162,7 +160,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
     private function _handleCart($isRestoreCart, $cancel = false) {
 
         // If for redirectAction() function, then also "save" (restore) the last quote of order given
-        if($isRestoreCart) {
+        if ($isRestoreCart) {
             if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
                 if ($lastQuoteId = Mage::getSingleton('checkout/session')->getLastQuoteId()) {
                     $quote = Mage::getModel('sales/quote')->load($lastQuoteId);
