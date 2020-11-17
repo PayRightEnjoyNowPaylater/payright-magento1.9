@@ -173,7 +173,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
                     return $dataResponseArray;
                 } else {
-                    return "exceed_amount";
+                    return "exceed_amount"; // error 'exceed_amount' text
                 }
             } else {
                 return "rates_error";
@@ -407,34 +407,29 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      *
      * @param array $getRates get the rates for merchant
      * @param float $saleAmount price of purchased amount
-     * @return int allowed loanlimit in form 0 or 1, 0 means sale amount is still in limit and 1 is over limit
+     * @return int allowed loan limit in form 0 or 1, 0 means sale amount is still in limit and 1 is over limit
      */
+    public function getMaximumSaleAmount($getRates, $saleAmount) {
 
-    public
-    function getMaximumSaleAmount($getRates, $saleAmount) {
+        // Define 'loan limit boolean check, 0 = within / under limit and 1 = over limit.
         $chkLoanLimit = 0;
-        $getVal[] = array();
 
-//        $keys = array_keys($getRates);
-//
-//        for ($i = 0; $i < count($getRates); $i++) {
-//            foreach ($getRates[$keys[$i]] as $key => $value) {
-//                if ($key == "maximumPurchase") {
-//                    $getVal[] = $value;
-//                }
-//            }
-//        }
+        // Declare $getVal[] array first time.
+        $getVal[] = null;
 
+        // Get all 'maximumPurchase' values from rates.
         foreach ($getRates as $key => $value) {
-            if ($key == "maximumPurchase") {
-                $getVal[] = $value;
-            }
+            // Build a 'maximumPurchase' array list for later use.
+            $getVal[] = $value["maximumPurchase"];
         }
 
+        // If 'sale amount' is over the maximum 'allowed loan limit', then true.
+        // AKA if 'sale amount' > max loan limit.
         if (max($getVal) < $saleAmount) {
             $chkLoanLimit = 1;
         }
 
+        // Else, still within / under the 'allowed loan limit'.
         return $chkLoanLimit;
     }
 
