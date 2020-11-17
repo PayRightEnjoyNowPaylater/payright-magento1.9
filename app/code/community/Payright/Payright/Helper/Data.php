@@ -102,18 +102,17 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $response = json_decode($client->request()->getBody(), true);
 
+        $returnArray[] = null;
+
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
             // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
             $returnArray['rates'] = $response['data']['rates'];
-            print_r($returnArray['rates']);
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
-            print_r($returnArray['establishmentFees']);
-            // $returnArray['otherFees'] = $response['data']['otherFees'];
+            $returnArray['otherFees'] = $response['data']['otherFees'];
             // TODO Keep below if need to convert $response['data']['otherFees'];
-            $otherFees[] = $response['data']['otherFees'];
-            $returnArray['otherFees'] = $otherFees;
-            print_r($returnArray['otherFees']);
+            // $otherFees[] = $response['data']['otherFees'];
+            // $returnArray['otherFees'] = $otherFees;
 
             return $returnArray;
         } else {
@@ -147,8 +146,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
                     // Prepare json decode conversion for these two fields from responses
                     // This is for 'installments.phtml' where it is json_encode() happening.
-                    $accountKeepingFee = $data['rates']['monthlyAccountKeepingFee'];
-                    $paymentProcessingFee = $data['rates']['paymentProcessingFee'];
+                    $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
+                    $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
 
                     // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
                     $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
