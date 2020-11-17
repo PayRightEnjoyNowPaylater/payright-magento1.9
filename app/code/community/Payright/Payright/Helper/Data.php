@@ -80,12 +80,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client = new Zend_Http_Client($apiEndpoint . $apiURL);
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
         $client->setHeaders('Accept: application/json');
-        $client->setHeaders('Authorization: Bearer ' . $authToken);
+        $client->setHeaders('Authorization:' . $authToken);
         $client->setConfig(array('timeout' => 15));
 
-        $response = $client->request()->getBody();
+        // Immediate json_decode of response body
+        $response = json_decode($client->request()->getBody(), true);
 
-        $returnArray = json_decode($response, true);
+        // Declare 'returnArray' for first time
+        $returnArray = null;
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
@@ -126,9 +128,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
                     // Prepare json decode conversion for these two fields from responses
                     // This is for 'installments.phtml' where it is json_encode() happening.
-                    $otherFees = json_decode($data['otherFees'], true);
-                    $accountKeepingFee = $otherFees['monthlyAccountKeepingFee'];
-                    $paymentProcessingFee = $otherFees['paymentProcessingFee'];
+                    $accountKeepingFee = $data['rates']['monthlyAccountKeepingFee'];
+                    $paymentProcessingFee = $data['rates']['paymentProcessingFee'];
 
                     // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
                     $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
@@ -394,7 +395,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return string
      */
     public
-    function callPayrightAPI($data = null, $apiURL, $authToken = false) {
+    function callPayrightAPI($data, $apiURL, $authToken = false) {
 
         $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
@@ -403,7 +404,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client->setMethod(Zend_Http_Client::POST);
         $client->setHeaders('Content-Type: application/json');
         $client->setHeaders('Accept: application/json');
-        $client->setHeaders('Authorization: Bearer ' . $authToken);
+        $client->setHeaders('Authorization:' . $authToken);
         $client->setConfig(array('timeout' => 15));
         if ($data) {
             $client->setParameterPost($data);
