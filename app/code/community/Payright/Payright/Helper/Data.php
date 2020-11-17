@@ -51,7 +51,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         );
         $client->setConfig(array('timeout' => 15));
         if ($data) {
-            $client->setParameterPost(json_encode($data));
+            $client->setParameterPost($data);
         }
 
         try {

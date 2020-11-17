@@ -36,7 +36,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $expiresAt
             );
 
-            if($initialiseTransaction) {
+            if(isset($initialiseTransaction['data']['checkoutId'])) {
                 // Get the endpoints from the config files
                 $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
 
