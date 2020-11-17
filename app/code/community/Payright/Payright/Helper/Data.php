@@ -215,12 +215,17 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return float mindeposit
      */
     public function calculateMinDeposit($getRates, $saleAmount) {
+        /*
         for ($i = 0; $i < count($getRates); $i++) {
             for ($l = 0; $l < count($getRates[$i]); $l++) {
                 if ($getRates[$i]['term'] == 4) {
                     $per[] = $getRates[$i]['minimumDepositPercentage'];
                 }
             }
+        }
+        */
+        foreach ($getRates as $key => $value) {
+            $per[] = $value["minimumDepositPercentage"];
         }
 
         if (isset($per)) {
@@ -281,7 +286,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public
     function fetchLoanTermForSale($rates, $saleAmount) {
-        $ratesArray = array();
+        $ratesArray = null;
         //$generateLoanTerm = '';
 
         foreach ($rates as $key => $rate) {
