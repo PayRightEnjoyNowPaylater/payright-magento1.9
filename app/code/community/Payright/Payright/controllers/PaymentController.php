@@ -32,11 +32,10 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $capturedOrderId = $orderId;
 
             // Initialize the Payright transaction. To get the 'checkoutId'.
-            // Also, append 'orderId' in the 'redirectUrl', for later use.
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
                 "MagePayright_" . $capturedOrderId,
                 $saleAmount,
-                $redirectUrl."&orderId=".$capturedOrderId,
+                $redirectUrl,
                 $expiresAt
             );
 
@@ -84,7 +83,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Breakdown URL parameters received back
         $checkoutId = $params['checkoutId'];
         $status = $params['status'];
-        $orderId = $params['orderId']; // TODO We need this!! Taken from appended 'redirectEndpoint' in 'redirect'
 
         // $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
         // $status = Mage::app()->getRequest()->getParam('status');
@@ -95,7 +93,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Get plan data for the payright transaction.
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
+        // Retrieve specific data, and sanitize / clean with string manipulation
         $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
+        $resOrderId = isset($json["data"]["merchantReference"]) ? substr($json["data"]["merchantReference"], strlen("MagePayright_")) : null;
         $resPlanId = isset($json["data"]["planId"]) ? $json["data"]["planId"] : null;
         $resPlanNumber = isset($json["data"]["planNumber"]) ? $json["data"]["planNumber"] : null;
         $resStatus = isset($json["data"]["status"]) ? $json["data"]["status"] : null; // TODO Not using it YET, using 'status' URL param.
@@ -107,7 +107,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             } else {
                 // Payment was successful, so update the order's state, send order email and move to the success page
                 $order = Mage::getModel('sales/order');
-                $order->loadByIncrementId($orderId);
+                $order->loadByIncrementId($resOrderId);
                 $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
 
                 // Set Payright details.
