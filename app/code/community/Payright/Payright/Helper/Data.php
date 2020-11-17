@@ -85,14 +85,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $response = $client->request()->getBody();
 
-        $returnArray = json_decode($response);
+        $returnArray = json_decode($response, true);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
             // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
             $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
-            $returnArray['otherFees'] = $response['data']['otherFees'];
+            $returnArray['otherFees'] = json_decode($response['data']['otherFees'], true);
 
             return $returnArray;
         } else {
@@ -165,8 +165,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                     $dataResponseArray['establishmentFee'] = $resEstablishmentFees;
                     $dataResponseArray['minDeposit'] = $getMinDeposit;
                     $dataResponseArray['totalCreditRequired'] = $this->totalCreditRequired($formattedLoanAmount, $resEstablishmentFees);
-                    $dataResponseArray['accountKeepFees'] = $accountKeepingFee;
-                    $dataResponseArray['processingFees'] = $paymentProcessingFee;
+                    $dataResponseArray['accountKeepingFee'] = $accountKeepingFee;
+                    $dataResponseArray['paymentProcessingFee'] = $paymentProcessingFee;
                     $dataResponseArray['saleAmount'] = $saleAmount;
                     $dataResponseArray['numberOfRepayments'] = $calculatedNumberOfRepayments;
                     $dataResponseArray['repaymentFrequency'] = 'Fortnightly';
