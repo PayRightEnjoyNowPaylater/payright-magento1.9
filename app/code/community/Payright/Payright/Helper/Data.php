@@ -28,7 +28,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     public function performApiCheckout($merchantReference, $saleAmount, $redirectUrl, $expiresAt) {
-        $apiURL = "api/v1/checkouts";
+        // $apiURL = "api/v1/checkouts";
 
         $data = array(
             'merchantReference' => $merchantReference,
@@ -38,14 +38,31 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             'expiresAt' => $expiresAt
         );
 
-        $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
+        // $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
 
-        if (!isset($response['error'])) {
-            return $response;
-        } else {
-            return "Error";
-            // return $response['error']['status'];
+        $client = new Zend_Http_Client("https://byronbay-dev.payright.com.au/api/v1/checkouts");
+        $client->setMethod(Zend_Http_Client::POST);
+        $client->setHeaders('Content-Type: application/json');
+        $client->setHeaders('Accept: application/json');
+        $client->setHeaders('Authorization: Bearer' . $this->getAccessToken()); // TODO added Bearer
+        $client->setConfig(array('timeout' => 15));
+        if ($data) {
+            $client->setParameterPost(json_encode($data));
         }
+
+        try {
+            $json = $client->request()->getBody();
+            // return Mage::helper('core')->jsonDecode($json); // TODO Don't use this?
+            return json_decode($json, true);
+        } catch (\Exception $e) {
+            return "Error";
+        }
+
+//        if (!isset($response['error'])) {
+//            return $response;
+//        } else {
+//            return "Error";
+//        }
     }
 
     /*
