@@ -102,7 +102,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $response = json_decode($client->request()->getBody(), true);
 
-        var_dump($response);
+        var_dump($response['data']['rates']);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
