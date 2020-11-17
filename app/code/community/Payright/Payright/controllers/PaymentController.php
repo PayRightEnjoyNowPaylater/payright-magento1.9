@@ -94,7 +94,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Get plan data for the payright transaction.
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
-        var_dump(json_decode($json["data"], true));
+        var_dump($json["data"]["planId"]);
 
         $resPlanId = isset($result->planId) ? $result->planId : null;
         $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
