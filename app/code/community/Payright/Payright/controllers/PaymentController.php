@@ -99,7 +99,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $resPlanNumber = isset($result->planNumber) ? $result->planNumber : null;
         $resStatus = isset($result->status) ? $result->status : null; // TODO Not using it YET, using 'status' URL param.
 
-        var_dump($result.$status);
+        var_dump($checkoutId.$status);
 
         // TODO Update status check, from query param to work with response status value.
         // if ($validated) {
