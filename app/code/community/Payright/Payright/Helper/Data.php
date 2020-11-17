@@ -141,11 +141,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                     // Acquire 'establishment fees'
                     // $establishmentFees = $data['establishmentFees'];
 
-                    // We need the mentioned fees below, to calculate for 'payment frequency'
+                    // We need the mentioned 'otherFees' below, to calculate for 'payment frequency'
                     // and 'loan amount per repayment'
-
-                    // Prepare json decode conversion for these two fields from responses
-                    // This is for 'installments.phtml' where it is json_encode() happening.
                     $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
                     $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
 
