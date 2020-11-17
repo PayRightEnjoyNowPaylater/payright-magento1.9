@@ -40,6 +40,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
 
+        /*
         $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/checkouts");
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -48,7 +49,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $result = curl_exec($ch);
 
         $response = json_decode($result, true);
-
+        */
 
         if (!isset($response['error'])) {
             return $response;
