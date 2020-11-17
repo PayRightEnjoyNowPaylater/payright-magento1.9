@@ -41,7 +41,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         // $response = $this->callPayrightAPI($data, $apiURL, $this->getAccessToken());
 
         $client = new Zend_Http_Client("https://byronbay-dev.payright.com.au/api/v1/checkouts");
-        $client->setMethod(Zend_Http_Client::POST);
+        // $client->setMethod(Zend_Http_Client::POST);
         $client->setHeaders(
             array(
                 'Accept'                => 'application/json',
@@ -50,14 +50,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             )
         );
         $client->setConfig(array('timeout' => 15));
-        if ($data) {
-            $client->setParameterPost($data);
-        }
+        // $client->setParameterPost($data);
+        $response = $client->setRawData($data, 'application/json')->request('POST');
 
         try {
-            $json = $client->request()->getBody();
+            // $json = $client->request()->getBody();
             // return Mage::helper('core')->jsonDecode($json); // TODO Don't use this?
-            return json_decode($json, true);
+            // return json_decode($json, true);
+            return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             return "Error";
         }
