@@ -81,8 +81,12 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         /* For now, we assume that the gateway's response is valid
          */
         $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
-        $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
-        $status = Mage::app()->getRequest()->getParam('status');
+        $params = Mage::app()->getRequest()->getParams();
+        $checkoutId = $params['checkoutId'];
+        $status = $params['status'];
+
+        // $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
+        // $status = Mage::app()->getRequest()->getParam('status');
 
         // TODO Add validation from response source. For example, get 'Access Token'?
         // $validated = true;
