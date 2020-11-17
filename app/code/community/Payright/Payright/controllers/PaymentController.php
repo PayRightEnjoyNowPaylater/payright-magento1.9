@@ -31,11 +31,12 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Capture the 'orderId', for further processing.
             $capturedOrderId = $orderId;
 
-            // Initialize the Payright transaction. To get the 'checkoutId'
+            // Initialize the Payright transaction. To get the 'checkoutId'.
+            // Also, append 'orderId' in the 'redirectUrl', for later use.
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
                 "MagePayright_" . $capturedOrderId,
                 $saleAmount,
-                $redirectUrl,
+                $redirectUrl."&orderId=".$capturedOrderId,
                 $expiresAt
             );
 
@@ -48,8 +49,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Restore cart / quote - for users who click 'Back' browser button
             $this->_handleCart(true);
 
-            // Define the 'redirectEndpoint' but also append 'orderId', for 'responseAction'
-            $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']."&orderId=".$capturedOrderId);
+            // Define the 'redirectEndpoint'
+            $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
 
             /*
             $this->loadLayout();
