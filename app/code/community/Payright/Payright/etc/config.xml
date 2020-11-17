@@ -52,6 +52,15 @@
                     </payright123_payment_method_is_active>
                 </observers>
             </payment_method_is_active>
+            <sales_order_shipment_save_after>
+                <observers>
+                    <payright_order_shipment>
+                        <type>singleton</type>
+                        <class>payright/observer</class>
+                        <method>payrightOrderShipment</method>
+                    </payright_order_shipment>
+                </observers>
+            </sales_order_shipment_save_after>
         </events>
     </global>
     <adminhtml>

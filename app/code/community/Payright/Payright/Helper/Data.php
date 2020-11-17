@@ -88,7 +88,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         // $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         // $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
-        // $client = new Zend_Http_Client($apiEndpoint . $apiURL);
+        // $client = new Zend_Http_Client($apiEndpoint . "api/v1/merchant/configuration");
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
 //        $client->setHeaders(
 //            array(
@@ -411,37 +411,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $totalCreditRequired = (floatval($loanAmount) + floatval($establishmentFees));
 
         return number_format((float)$totalCreditRequired, 2, '.', '');
-    }
-
-    /**
-     * @param null $data
-     * @param $apiURL
-     * @param false $authToken
-     * @return string
-     */
-    public
-    function callPayrightAPI($data, $apiURL, $authToken) {
-
-        $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
-        $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
-
-        $client = new Zend_Http_Client($apiEndpoint . $apiURL);
-        $client->setMethod(Zend_Http_Client::POST);
-        $client->setHeaders('Content-Type: application/json');
-        $client->setHeaders('Accept: application/json');
-        $client->setHeaders('Authorization: Bearer' . $authToken); // TODO added Bearer
-        $client->setConfig(array('timeout' => 15));
-        if ($data) {
-            $client->setParameterPost(json_decode($data));
-        }
-
-        try {
-            $json = $client->request()->getBody();
-            // return Mage::helper('core')->jsonDecode($json); // TODO Don't use this?
-            return json_decode($json, true);
-        } catch (\Exception $e) {
-            return "Error: API POST failed";
-        }
     }
 
     public
