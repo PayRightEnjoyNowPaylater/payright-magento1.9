@@ -98,8 +98,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $resPlanNumber = isset($json["data"]["planNumber"]) ? $json["data"]["planNumber"] : null;
         $resStatus = isset($json["data"]["status"]) ? $json["data"]["status"] : null; // TODO Not using it YET, using 'status' URL param.
 
-        var_dump($checkoutId.$resPlanId.$resPlanNumber);
-
         // TODO Update status check, from query param to work with response status value.
         // if ($validated) {
             if ($status != "COMPLETE") {
@@ -130,7 +128,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 Mage::getSingleton('checkout/session')->unsQuoteId();
 
                 // Redirect customer to success page
-                Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
+                // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
+
+                $this->_redirect('checkout/onepage/success', array('_secure' => true));
             }
         //} else {
             // There is a problem in the response we got
