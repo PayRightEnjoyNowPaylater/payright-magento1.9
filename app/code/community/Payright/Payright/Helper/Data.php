@@ -116,7 +116,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
             if (isset($getRates)) {
                 $payrightInstallmentApproval = $this->getMaximumSaleAmount($getRates, $saleAmount);
-                if ($payrightInstallmentApproval == 0) {
+                if (true) {
+                // if ($payrightInstallmentApproval == 0) {
                     // Acquire 'establishment fees'
                     $establishmentFees = $data['establishmentFees'];
 
@@ -181,76 +182,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         } else {
             return "auth_token_error";
         }
-    }
-
-    /*
-     * TEST FUNCTION ONLY
-     *
-     * @return string
-     */
-    public function calculateSingleProductInstallmentTest($saleAmount) {
-        $authToken = $this->getAccessToken();
-
-        $data = $this->performApiGetRates();
-
-        $getRates = $data['rates'];
-
-        // $payrightInstallmentApproval = $this->getMaximumSaleAmount($getRates, $saleAmount);
-        // Acquire 'establishment fees'
-        $establishmentFees = $data['establishmentFees'];
-
-        // We need the mentioned fees below, to calculate for 'payment frequency'
-        // and 'loan amount per repayment'
-        $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
-        $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
-
-        // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
-        $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
-
-        // Get your 'minimum deposit amount', from 'rates' data received and sale amount.
-        $getMinDeposit = $this->calculateMinDeposit($getRates, $saleAmount);
-
-        // Get your 'payment frequency', from 'monthly account keeping fee' and 'loan term'
-        $getPaymentFrequency = $this->getPaymentFrequency($accountKeepingFee, $loanTerm);
-
-        // Calculate and collect all 'number of repayments' and 'monthly account keeping fees'
-        $calculatedNumberOfRepayments = $getPaymentFrequency['numberOfRepayments'];
-        $calculatedAccountKeepingFees = $getPaymentFrequency['accountKeepingFees'];
-
-        // Get 'loan amount', for example: 'sale amount' - 'minimum deposit amount' = loan amount.
-        $loanAmount = $saleAmount - $getMinDeposit;
-
-        // For 'total credit required' output. Format the 'loan amount', into currency format.
-        $formattedLoanAmount = number_format((float)$loanAmount, 2, '.', '');
-
-        // Process 'establishment fees', from 'loan term' and 'establishment fees' (response)
-        $resEstablishmentFees = $this->getEstablishmentFees($loanTerm, $establishmentFees);
-
-        // TODO Keep or discard below? Currently, unused.
-        // $establishmentFeePerPayment = $resEstablishmentFees / $calculatedNumberOfRepayments;
-        // $loanAmountPerPayment = $formattedLoanAmount / $calculatedNumberOfRepayments;
-
-        // Calculate repayment, to get 'loan amount' as 'loan amount per payment'.
-        $calculateRepayments = $this->calculateRepayment(
-            $calculatedNumberOfRepayments,
-            $calculatedAccountKeepingFees,
-            $resEstablishmentFees,
-            $loanAmount,
-            $paymentProcessingFee);
-
-        // The entire breakdown for calculated single product 'installment'.
-        $dataResponseArray['loanAmount'] = $loanAmount;
-        $dataResponseArray['establishmentFee'] = $resEstablishmentFees;
-        $dataResponseArray['minDeposit'] = $getMinDeposit;
-        $dataResponseArray['totalCreditRequired'] = $this->totalCreditRequired($formattedLoanAmount, $resEstablishmentFees);
-        $dataResponseArray['accountKeepFees'] = $accountKeepingFee;
-        $dataResponseArray['processingFees'] = $paymentProcessingFee;
-        $dataResponseArray['saleAmount'] = $saleAmount;
-        $dataResponseArray['numberOfRepayments'] = $calculatedNumberOfRepayments;
-        $dataResponseArray['repaymentFrequency'] = 'Fortnightly';
-        $dataResponseArray['loanAmountPerPayment'] = $calculateRepayments;
-
-        return $dataResponseArray;
     }
 
     /**
