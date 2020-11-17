@@ -83,22 +83,13 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client->setHeaders('Authorization:' . $authToken);
         $client->setConfig(array('timeout' => 15));
 
-        // Immediate json_decode of response body
-        $response = json_decode($client->request()->getBody(), true);
+        $response = $client->request()->getBody();
 
-        /*
-        $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/merchant/configuration");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer ".$authToken));
-
-        $response = json_decode(curl_exec($ch), true);
-        */
-
-        // Declare 'returnArray' for first time
-        $returnArray = null;
+        $returnArray = json_decode($response, true);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
+            // The 'rates' are json format, hence we need json_decode() with associative array
+            // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
             $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
             $returnArray['otherFees'] = $response['data']['otherFees'];
