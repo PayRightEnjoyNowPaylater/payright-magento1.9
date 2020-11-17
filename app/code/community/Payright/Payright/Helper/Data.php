@@ -83,33 +83,34 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function performApiGetRates() {
         // $apiURL = "api/v1/merchant/configuration";
-        $authToken = $this->getAccessToken();
+        // $authToken = $this->getAccessToken();
 
-        // $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
-        // $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
+        $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
+        $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
-        // $client = new Zend_Http_Client($apiEndpoint . "api/v1/merchant/configuration");
+        $client = new Zend_Http_Client($apiEndpoint . "api/v1/merchant/configuration");
         // $client->setMethod(Zend_Http_Client::GET); // default setMethod is already GET
-//        $client->setHeaders(
-//            array(
-//                'Accept' => 'application/json',
-//                'Authorization' => 'Bearer ' . $this->getAccessToken()
-//            )
-//        );
-        // $client->setConfig(array('timeout' => 15));
+        $client->setHeaders(
+            array(
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $this->getAccessToken()
+            )
+        );
+        $client->setConfig(array('timeout' => 15));
 
-        $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/merchant/configuration");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $authToken));
+//        $ch = curl_init("https://byronbay-dev.payright.com.au/api/v1/merchant/configuration");
+//        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $authToken));
+//
+//        $result = curl_exec($ch);
+//
+//        $response = json_decode($result, true);
 
-        $result = curl_exec($ch);
+        $returnArray = null;
 
-        $response = json_decode($result, true);
-
-        // $response = $client->request()->getBody();
-
-        // $returnArray = json_decode($response, true);
+        $response = json_decode($client->request()->getBody(), true);
 
         if (!isset($response['error']) && isset($response['data']['rates'])) {
             // The 'rates' are json format, hence we need json_decode() with associative array
