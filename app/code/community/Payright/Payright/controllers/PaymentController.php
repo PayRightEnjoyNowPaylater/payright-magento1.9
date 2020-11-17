@@ -36,31 +36,35 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $expiresAt
             );
 
-            // Get the endpoints from the config files
-            $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
+            if($initialiseTransaction) {
+                // Get the endpoints from the config files
+                $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
 
-            // Build the redirect, to 'checkout portal'.
-            $builtAppUrl = $this->buildRedirectUrl($apiEndpoints);
+                // Build the redirect, to 'checkout portal'.
+                $builtAppUrl = $this->buildRedirectUrl($apiEndpoints);
 
-            $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
-            $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
+                $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
+                $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
 
-            // Clear session values.
-            // Mage::getSingleton('customer/session')->unsPayrightAccessToken();
+                // Clear session values.
+                // Mage::getSingleton('customer/session')->unsPayrightAccessToken();
 
-            // Restore cart / quote - for users who click 'Back' browser button
-            $this->_handleCart(true);
+                // Restore cart / quote - for users who click 'Back' browser button
+                $this->_handleCart(true);
 
-            $this->loadLayout();
+                $this->loadLayout();
 
-            $block = $this->getLayout()->createBlock(
-                'Mage_Core_Block_Template',
-                'payright',
-                array('template' => 'payright/redirect.phtml')
-            )->setData('builtappendpoint', $initialiseTransaction['data']['redirectEndpoint']);
+                $block = $this->getLayout()->createBlock(
+                    'Mage_Core_Block_Template',
+                    'payright',
+                    array('template' => 'payright/redirect.phtml')
+                )->setData('builtappendpoint', $initialiseTransaction['data']['redirectEndpoint']);
 
-            $this->getLayout()->getBlock('content')->append($block);
-            $this->renderLayout();
+                $this->getLayout()->getBlock('content')->append($block);
+                $this->renderLayout();
+            } else {
+                var_dump($initialiseTransaction);
+            }
         }
     }
 
