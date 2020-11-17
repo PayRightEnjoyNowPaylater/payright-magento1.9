@@ -28,16 +28,16 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $dt->setTimeZone(new DateTimeZone('UTC'));
             $expiresAt = $dt->format('Y-m-d\TH-i-s.\0\0\0\Z');
 
+            // Capture the 'orderId', for further processing.
+            $capturedOrderId = $orderId;
+
             // Initialize the Payright transaction. To get the 'checkoutId'
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
-                "MagePayright_" . $orderId,
+                "MagePayright_" . $capturedOrderId,
                 $saleAmount,
                 $redirectUrl,
                 $expiresAt
             );
-
-            // TODO Check response again!!
-            var_dump($initialiseTransaction);
 
             // Get the endpoints from the config files
             $apiEndpoints = Mage::helper('payright')->getEnvironmentEndpoints();
@@ -48,7 +48,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Restore cart / quote - for users who click 'Back' browser button
             $this->_handleCart(true);
 
-            $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
+            // Define the 'redirectEndpoint' but also append 'orderId', for 'responseAction'
+            $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']."&orderId=".$capturedOrderId);
 
             /*
             $this->loadLayout();
@@ -82,7 +83,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Breakdown URL parameters received back
         $checkoutId = $params['checkoutId'];
         $status = $params['status'];
-        $orderId = $params['orderId']; // TODO We need this!!
+        $orderId = $params['orderId']; // TODO We need this!! Taken from appended 'redirectEndpoint' in 'redirect'
 
         // $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
         // $status = Mage::app()->getRequest()->getParam('status');
@@ -112,7 +113,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 $order->setPayrightPlanId($resPlanId);
                 $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
 
-                // TODO Line 118 - Uncaught TypeError: Argument 1 passed to Mage_Payment_Helper_Data::getInfoBlock() must be an
+                // TODO sendNewOrderEmail() - Uncaught TypeError: Argument 1 passed to Mage_Payment_Helper_Data::getInfoBlock() must be an
                 // instance of Mage_Payment_Model_Info, boolean given
                 // Send customer the email of order
                 $order->sendNewOrderEmail();
