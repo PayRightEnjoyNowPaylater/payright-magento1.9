@@ -29,9 +29,9 @@ class Payright_Payright_Block_Catalog_Installments extends Mage_Core_Block_Templ
         return $installmentText;
     }
 
-    public function getRates() {
-        return Mage::helper('payright')->performApiGetRates();
-    }
+//    public function getRates() {
+//        return Mage::helper('payright')->performApiGetRates();
+//    }
 
     public function getHtmlTemplate() {
         $result = Mage::getStoreConfig(self::XML_CONFIG_PREFIX . $this->getPageType() . '_html_template');
