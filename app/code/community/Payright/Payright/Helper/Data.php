@@ -101,10 +101,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             // $returnArray['rates'] = Mage::helper('core')->jsonDecode($response['data']['rates']);
             $returnArray['rates'] = $response['data']['rates'];
             $returnArray['establishmentFees'] = $response['data']['establishmentFees'];
-            // $returnArray['otherFees'] = $response['data']['otherFees'];
-
-            $otherFees[] = $response['data']['otherFees'];
-            $returnArray['otherFees'] = $otherFees;
+            $returnArray['otherFees'] = $response['data']['otherFees'];
+            // TODO Keep below if need to convert $response['data']['otherFees'];
+            // $otherFees[] = $response['data']['otherFees'];
+            // $returnArray['otherFees'] = $otherFees;
 
             return $returnArray;
         } else {
@@ -131,7 +131,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                 if (true) {
                 // if ($payrightInstallmentApproval == 0) {
                     // Acquire 'establishment fees'
-                    $establishmentFees = $data['establishmentFees'];
+                    // $establishmentFees = $data['establishmentFees'];
 
                     // We need the mentioned fees below, to calculate for 'payment frequency'
                     // and 'loan amount per repayment'
@@ -161,7 +161,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                     $formattedLoanAmount = number_format((float)$loanAmount, 2, '.', '');
 
                     // Process 'establishment fees', from 'loan term' and 'establishment fees' (response)
-                    $resEstablishmentFees = $this->getEstablishmentFees($loanTerm, $establishmentFees);
+                    $resEstablishmentFees = $this->getEstablishmentFees($loanTerm, $data['establishmentFees']);
 
                     // TODO Keep or discard below? Currently, unused.
                     // $establishmentFeePerPayment = $resEstablishmentFees / $calculatedNumberOfRepayments;
@@ -331,19 +331,19 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public
     function getEstablishmentFees($loanTerm, $establishmentFees) {
-        $fee_bandArray = null;
-        $feeBandCalculator = 0;
+        // $fee_bandArray = null;
+        // $feeBandCalculator = 0;
 
-        foreach ($establishmentFees as $key => $row) {
-            $fee_bandArray[$key]['term'] = $row['term'];
-            $fee_bandArray[$key]['initialEstFee'] = $row['initialEstFee'];
-            $fee_bandArray[$key]['initialEstFee'] = $row['repeatEstFee'];
+        foreach ($establishmentFees as $key => $estFee) {
+            // $fee_bandArray[$key]['term'] = $estFee['term'];
+            // $fee_bandArray[$key]['initialEstFee'] = $estFee['initialEstFee'];
+            // $fee_bandArray[$key]['repeatEstFee'] = $estFee['repeatEstFee'];
 
-            if ($fee_bandArray[$key]['term'] == $loanTerm) {
-                $h = $row['initialEstFee'];
+            if ($estFee['term'] == $loanTerm) {
+                $h = $estFee['initialEstFee'];
             }
 
-            $feeBandCalculator++;
+            // $feeBandCalculator++;
         }
 
         if (isset($h)) {
