@@ -43,8 +43,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 // Build the redirect, to 'checkout portal'.
                 $builtAppUrl = $this->buildRedirectUrl($apiEndpoints);
 
-                $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
-                $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
+                // $layoutData['builtAppEndpoint'] = $builtAppUrl; // TODO What's this for?
+                // $layoutDataString = implode(", ", $layoutData); // TODO What's this for?
 
                 // Clear session values.
                 // Mage::getSingleton('customer/session')->unsPayrightAccessToken();
@@ -58,7 +58,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                     'Mage_Core_Block_Template',
                     'payright',
                     array('template' => 'payright/redirect.phtml')
-                )->setData('builtappendpoint', $initialiseTransaction['data']['redirectEndpoint']);
+                )->setData('builtappendpoint', $builtAppUrl)
+                    ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
 
                 $this->getLayout()->getBlock('content')->append($block);
                 $this->renderLayout();
