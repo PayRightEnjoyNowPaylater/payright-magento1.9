@@ -290,13 +290,19 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         //$generateLoanTerm = '';
 
         foreach ($rates as $key => $rate) {
-            $ratesArray[$key]['Term'] = $rate['term'];
-            $ratesArray[$key]['Min'] = $rate['minimumPurchase'];
-            $ratesArray[$key]['Max'] = $rate['maximumPurchase'];
+            $ratesArray[$key]['term'] = $rate["term"];
+            $ratesArray[$key]['minimumPurchase'] = $rate['minimumPurchase'];
+            $ratesArray[$key]['maximumPurchase'] = $rate['maximumPurchase'];
 
             if (($saleAmount >= $ratesArray[$key]['minimumPurchase'] && $saleAmount <= $ratesArray[$key]['maximumPurchase'])) {
-                $generateLoanTerm[] = $ratesArray[$key]['Term'];
+                $generateLoanTerm[] = $ratesArray[$key]['term'];
             }
+        }
+
+        if (isset($generateLoanTerm)) {
+            echo min($generateLoanTerm);
+        } else {
+            echo 0;
         }
 
         if (isset($generateLoanTerm)) {
