@@ -94,6 +94,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Get plan data for the payright transaction.
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
+        $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
         $resPlanId = isset($json["data"]["planId"]) ? $json["data"]["planId"] : null;
         $resPlanNumber = isset($json["data"]["planNumber"]) ? $json["data"]["planNumber"] : null;
         $resStatus = isset($json["data"]["status"]) ? $json["data"]["status"] : null; // TODO Not using it YET, using 'status' URL param.
@@ -110,7 +111,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
                 // Set Payright details.
                 $order->setPayrightPlanId($resPlanId);
-                $order->setPayrightCheckoutId($checkoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
+                $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
 
                 // Send customer the email of order
                 $order->sendNewOrderEmail();
