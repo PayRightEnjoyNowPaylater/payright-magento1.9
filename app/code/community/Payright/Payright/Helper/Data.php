@@ -80,13 +80,17 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
+
         // Define API GET call for 'data', for the 'responseAction'.
-        $response = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/" . $checkoutId);
+        $client = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/" . $checkoutId);
+        $client->setConfig(array('timeout' => 15));
+
+        $response = json_decode($client->request()->getBody(), true);
 
         try {
-            return json_decode($response->getBody(), true);
+            return json_decode($response, true);
         } catch (\Exception $e) {
-            return json_decode($response->getBody(), true);
+            return json_decode($response, true);
         }
     }
 
