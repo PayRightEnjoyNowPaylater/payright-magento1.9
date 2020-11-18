@@ -88,11 +88,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $client = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/" . $id);
             $client->setMethod(Zend_Http_Client::GET);
 
-            var_dump($client->request()->getBody());
-
-            $response = json_decode($client->request()->getBody(), true);
-
-            return json_decode($response, true);
+            return json_decode($client->request()->getBody(), true);
         } catch (\Exception $e) {
             return $e;
         }
