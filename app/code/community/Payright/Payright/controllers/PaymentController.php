@@ -95,6 +95,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $checkoutId = $params['checkoutId'];
         $status = $params['status'];
 
+        echo $checkoutId." ".$status;
+
         // $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
         // $status = Mage::app()->getRequest()->getParam('status');
 
