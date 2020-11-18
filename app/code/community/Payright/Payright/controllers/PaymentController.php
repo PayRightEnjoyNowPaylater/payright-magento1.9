@@ -104,8 +104,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Get plan data for the Payright transaction
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
-        var_dump($json);
-
         // TODO [A] Backup 'Order Id' value from Magento session, testing if works well.
         // $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
         $resOrderId = Mage::getSingleton('core/session')->getSaveOrderId();
