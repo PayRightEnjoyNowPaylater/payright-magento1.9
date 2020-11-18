@@ -100,9 +100,13 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // Get plan data for the Payright transaction
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
+        // TODO [A] Backup 'Order Id' value from Magento session, testing if works well.
+        $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+
         // Retrieve specific data, and sanitize / clean with string manipulation
         $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
-        $resOrderId = isset($json["data"]["merchantReference"]) ? substr($json["data"]["merchantReference"], strlen("MagePayright_")) : null;
+        // TODO [A] Re-enable when 'getPlanDataByCheckoutId' bug is fixed
+        // $resOrderId = isset($json["data"]["merchantReference"]) ? substr($json["data"]["merchantReference"], strlen("MagePayright_")) : null;
         $resPlanId = isset($json["data"]["planId"]) ? $json["data"]["planId"] : null;
         $resPlanNumber = isset($json["data"]["planNumber"]) ? $json["data"]["planNumber"] : null;
         $resStatus = isset($json["data"]["status"]) ? $json["data"]["status"] : null; // TODO Not using it YET, using 'status' URL param.
