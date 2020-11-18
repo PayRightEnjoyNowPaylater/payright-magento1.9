@@ -74,23 +74,23 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * Only used for 'responseAction'.
      *
      * @param $checkoutId
-     * @return array
+     * @return Exception
      */
     public function getPlanDataByCheckoutId($checkoutId) {
         // Get the API Url endpoint, from 'config.xml'
         $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
         $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
 
-        // Define API GET call for 'data', for the 'responseAction'.
-        $client = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/" . $checkoutId);
-        $client->setConfig(array('timeout' => 15));
-
-        $response = json_decode($client->request()->getBody(), true);
-
         try {
+            // Define API GET call for 'data', for the 'responseAction'.
+            $client = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/" . $checkoutId);
+            $client->setConfig(array('timeout' => 15));
+
+            $response = json_decode($client->request()->getBody(), true);
+
             return json_decode($response, true);
         } catch (\Exception $e) {
-            return json_decode($response, true);
+            return $e;
         }
     }
 
