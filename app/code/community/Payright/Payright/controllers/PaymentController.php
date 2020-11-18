@@ -108,6 +108,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
         $resOrderId = Mage::getSingleton('core/session')->getSaveOrderId();
 
+        var_dump($json." ".$resOrderId);
+
         // Retrieve specific data, and sanitize / clean with string manipulation
         $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
         // TODO [A] Re-enable when 'getPlanDataByCheckoutId' bug is fixed
