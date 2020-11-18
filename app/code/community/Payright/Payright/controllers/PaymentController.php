@@ -88,7 +88,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // $this->getRequest()->isGet();
 
         // Get all URL parameters
-        $params = Mage::app()->getRequest()->getParams();
+        // $params = Mage::app()->getRequest()->getParams();
+        $params = $this->getRequest()->getParams();
 
         // Breakdown URL parameters received back
         $checkoutId = $params['checkoutId'];
