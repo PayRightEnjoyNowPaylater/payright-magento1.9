@@ -39,6 +39,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Build 'merchantReference'
             $merchantReference = "MagePayright_" . $capturedOrderId;
 
+            // Use Magento to save Order Id
+            Mage::getSingleton('core/session')->setSaveOrderId($capturedOrderId);
+
             // Initialize the Payright transaction. To get the 'checkoutId'.
             $initialiseTransaction = Mage::helper('payright')->performApiCheckout(
                 $merchantReference,
@@ -101,7 +104,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
         // TODO [A] Backup 'Order Id' value from Magento session, testing if works well.
-        $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        // $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        $resOrderId = Mage::getSingleton('core/session')->getSaveOrderId();
 
         // Retrieve specific data, and sanitize / clean with string manipulation
         $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
@@ -142,10 +146,13 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Since we're done, unset quote Id
             Mage::getSingleton('checkout/session')->unsQuoteId();
 
-            // Redirect customer to success page
-            // Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
+            // TODO [A] Magento session unset SaveOrderId
+            Mage::getSingleton('checkout/session')->unsSaveOrderId();
 
-            $this->_redirect('checkout/onepage/success', array('_secure' => true));
+            // Redirect customer to success page
+            Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
+
+            // $this->_redirect('checkout/onepage/success', array('_secure' => true));
         }
         //} else {
         // There is a problem in the response we got

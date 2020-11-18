@@ -73,6 +73,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * Get customer payment plan from new checkout, by 'checkoutId'.
      * Only used for 'responseAction'.
      *
+     * @param $checkoutId
      * @return array
      */
     public function getPlanDataByCheckoutId($checkoutId) {
