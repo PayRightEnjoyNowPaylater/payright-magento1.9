@@ -59,6 +59,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Define the 'redirectEndpoint'
             // $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
 
+            // Capture Checkout Id (DO NOT REMOVE)
+            $captureCheckoutId = $initialiseTransaction['data']['checkoutId'];
+
             $this->loadLayout();
 
             $block = $this->getLayout()->createBlock(
@@ -66,7 +69,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 'payright',
                 array('template' => 'payright/redirect.phtml')
             )->setData('builtAppendPoint', $builtAppUrl)
-            ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
+            ->setData('checkoutId', $captureCheckoutId);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
