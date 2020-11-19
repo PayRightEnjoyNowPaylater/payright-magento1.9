@@ -119,6 +119,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         if ($status != "COMPLETE") {
             $this->cancelAction();
         } else {
+            // TODO Remove after testing
+            echo $resOrderId;
+
             // Payment was successful, so update the order's state, send order email and move to the success page
             $order = Mage::getModel('sales/order');
             $order->loadByIncrementId($resOrderId);
@@ -129,7 +132,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
 
             // TODO sendNewOrderEmail() - Uncaught TypeError: Argument 1 passed to Mage_Payment_Helper_Data::getInfoBlock() must be an
-            // instance of Mage_Payment_Model_Info, boolean given
+            // TODO instance of Mage_Payment_Model_Info, boolean given
             // Send customer the email of order
             $order->sendNewOrderEmail();
             $order->setEmailSent(true);
