@@ -1,6 +1,5 @@
 <?php
 
-// app/code/local/Envato/Custompaymentmethod/Model/Paymentmethod.php
 class Payright_Payright_Model_Paymentmethod extends Mage_Payment_Model_Method_Abstract {
     protected $_code = 'payright';
     protected $_formBlockType = 'payright/form_payright';
@@ -41,6 +40,11 @@ class Payright_Payright_Model_Paymentmethod extends Mage_Payment_Model_Method_Ab
         return $this;
     }
 
+    /**
+     * Get order place redirect url.
+     *
+     * @return mixed
+     */
     public function getOrderPlaceRedirectUrl() {
         return Mage::getUrl('payright/payment/redirect', array('_secure' => false));
     }

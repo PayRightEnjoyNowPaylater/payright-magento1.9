@@ -95,6 +95,42 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     /**
+     * Activate Payright payment plan. Please note, this is a PUT request but we need POST for Zend_Http_Client.
+     *
+     * @param $checkoutId
+     * @return array
+     */
+    public function activatePlan($checkoutId) {
+        // Get the API Url endpoint, from 'config.xml'
+        $getEnvironmentEndpoints = $this->getEnvironmentEndpoints();
+        $apiEndpoint = $getEnvironmentEndpoints['ApiUrl'];
+
+        // Capture 'checkoutId' from parameter
+        $cId = $checkoutId;
+
+        // Define API POST call, to create new checkout
+        $client = new Zend_Http_Client($apiEndpoint . "api/v1/checkouts/" . $cId . "/activate");
+        $client->setHeaders(
+            array(
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $this->getAccessToken()
+            )
+        );
+        $client->setConfig(array('timeout' => 15));
+
+        // Lastly, define PUT method (we use POST for Zend_Http_Client), with json body data sent
+        $response = $client->request('POST');
+
+        // Response is data->message = 'Checkout activated'
+        // else data->error and data->message
+        try {
+            return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            return json_decode($response->getBody(), true);
+        }
+    }
+
+    /**
      * Retrieve data of 'rates', 'establishmentFees' and 'otherFees'.
      *
      * @return array
@@ -149,6 +185,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             // Get 'data' = 'rates', 'establishmentFees' and 'otherFees'
             $data = $this->performApiGetRates();
 
+            // Breakdown 'data' into usable variables
             $rates = $data['rates'];
             $establishmentFees = $data['establishmentFees'];
 
@@ -158,11 +195,9 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
 
             if (isset($rates)) {
-                // TODO Re-enable the $payrightInstallmentApproval IF condition
                 $payrightInstallmentApproval = $this->getMaximumSaleAmount($rates, $saleAmount);
-                if (true) {
-                    // if ($payrightInstallmentApproval == 0) {
-
+                // If merchant's rates vs. product prices are approved
+                if ($payrightInstallmentApproval == 0 || $this->getConfigValue('sandbox') == 1) {
                     // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
                     $loanTerm = $this->fetchLoanTermForSale($rates, $saleAmount);
 
@@ -445,7 +480,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             }
             return $returnEndpoints;
         } catch (Exception $e) {
-            return 'Error: '.$e->getMessage()."\n";
+            return 'Error: ' . $e->getMessage() . "\n";
         }
     }
 
