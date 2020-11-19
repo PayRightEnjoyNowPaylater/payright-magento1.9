@@ -23,9 +23,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Prepare 'sale amount' as currency format.
             $saleAmount = number_format((float)$_order->getBaseGrandTotal(), 2, '.', '');
 
-            // Define the merchant reference, of order.
-            // $merchantReference = "MagePayright_" . $orderId;
-
             // Generate 'expiresAt', set to expire 6 months from today's datetime.
             $dt = new DateTime();
             $interval = new DateInterval('P6M');
@@ -60,9 +57,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $this->_handleCart(true);
 
             // Define the 'redirectEndpoint'
-            $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
+            // $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
 
-            /*
             $this->loadLayout();
 
             $block = $this->getLayout()->createBlock(
@@ -70,11 +66,10 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 'payright',
                 array('template' => 'payright/redirect.phtml')
             )->setData('builtappendpoint', $builtAppUrl)
-                ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
+            ->setData('checkoutid', $initialiseTransaction['data']['checkoutId']);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
-            */
 
         }
     }
@@ -107,8 +102,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // TODO [A] Backup 'Order Id' value from Magento session, testing if works well.
         // $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
         $resOrderId = Mage::getSingleton('core/session')->getSaveOrderId();
-
-        var_dump($json." ".$resOrderId);
 
         // Retrieve specific data, and sanitize / clean with string manipulation
         $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
