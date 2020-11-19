@@ -65,8 +65,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 'Mage_Core_Block_Template',
                 'payright',
                 array('template' => 'payright/redirect.phtml')
-            )->setData('builtappendpoint', $builtAppUrl)
-            ->setData('checkoutid', $initialiseTransaction['data']['checkoutId']);
+            )->setData('builtAppendPoint', $builtAppUrl)
+            ->setData('checkoutId', $initialiseTransaction['data']['checkoutId']);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();

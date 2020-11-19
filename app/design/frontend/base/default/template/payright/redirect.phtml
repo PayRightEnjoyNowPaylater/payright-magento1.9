@@ -5,9 +5,9 @@ $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
 $_order->loadByIncrementId($orderId);
 
 ?>
-<form id="payrightgatewayform" name="payrightgatewayform" method="GET" action="<?php echo $this->builtappendpoint; ?>">
-    <input type="hidden" name="checkoutid" value="<?php echo $this->checkoutid; ?>">
-    <input type="hidden" name="orderid" value="<?php echo $this->orderId; ?>">
+<form id="payrightgatewayform" name="payrightgatewayform" method="GET" action="<?php echo $this->builtAppendPoint; ?>">
+    <input type="hidden" name="checkoutId" value="<?php echo $this->checkoutId; ?>">
+    <input type="hidden" name="orderId" value="<?php echo $orderId; ?>">
 </form>
 <script type="text/javascript">
     document.payrightgatewayform.submit();
