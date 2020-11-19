@@ -20,8 +20,8 @@
     </default>
     <catalog_product_view translate="label">
         <reference name="before_body_end">
-            <block type="payright/catalog_instalments" name="payright.instalments"
-                   template="payright/catalog/instalments.phtml" data-type="product_view"><!--after="prices" -->
+            <block type="payright/catalog_installments" name="payright.installments"
+                   template="payright/catalog/installments.phtml" data-type="product_view"><!--after="prices" -->
                 <action method="setPageType">
                     <pageType>product_page</pageType>
                 </action>

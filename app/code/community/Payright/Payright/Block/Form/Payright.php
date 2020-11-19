@@ -13,6 +13,7 @@ class Payright_Payright_Block_Form_Payright extends Mage_Payment_Block_Form
 
     /**
      * Block construction. Set block template.
+     *
      */
     protected function _construct()
     {
@@ -23,17 +24,29 @@ class Payright_Payright_Block_Form_Payright extends Mage_Payment_Block_Form
         $this->setMethodTitle("");
     }
 
+    /**
+     * Fetch payment installments.
+     *
+     */
     public function fetchInstallments()
     {
         $orderTotal   = $this->getOrderTotal();
         return Mage::helper('payright')->calculateSingleProductInstallment($orderTotal);
     }
 
+    /**
+     * Get order grand total.
+     *
+     */
     public function getOrderTotal()
     {
         return Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
     }
 
+    /**
+     * Get title system configuration.
+     *
+     */
     public function getTitleConfiguration()
     {
         $block = Mage::app()->getLayout()->createBlock('core/template');
@@ -49,6 +62,10 @@ class Payright_Payright_Block_Form_Payright extends Mage_Payment_Block_Form
         return $block->toHtml();
     }
 
+    /**
+     * Get HTML template.
+     *
+     */
     public function getHtmlTemplate()
     {
         $result = Mage::getStoreConfig(self::XML_CONFIG_PREFIX . 'checkout_headline_html_template');
