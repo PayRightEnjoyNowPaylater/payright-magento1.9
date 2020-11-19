@@ -1,22 +1,24 @@
 <?php
 
-// app/code/local/Envato/Custompaymentmethod/Block/Info/Custompaymentmethod.php
 class Payright_Payright_Block_Info_Payright extends Mage_Payment_Block_Info {
-    private $_paymentSpecificInformation;
-
+    /**
+     * Prepare specific information.
+     *
+     * @param null $transport
+     * @return mixed
+     */
     protected function _prepareSpecificInformation($transport = null) {
         if (null !== $this->_paymentSpecificInformation) {
             return $this->_paymentSpecificInformation;
         }
 
-        $data = array();
+        $info = $this->getInfo();
 
-        if ($this->getInfo()->getPayrightPlanNumber()) {
-            $data[Mage::helper('payment')->__('Payright Plan Number')] = $this->getInfo()->getPayrightPlanNumber();
-        }
-
+        $transport = new Varien_Object();
         $transport = parent::_prepareSpecificInformation($transport);
-
-        return $transport->setData(array_merge($data, $transport->getData()));
+        $transport->addData(array(
+            Mage::helper('payment')->__('Payright Plan Number') => $info->getPayrightPlanNumber(),
+        ));
+        return $transport;
     }
 }
