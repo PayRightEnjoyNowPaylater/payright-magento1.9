@@ -56,7 +56,8 @@ class Payright_Payright_Model_Observer {
         $order = $observer->getEvent()->getShipment()->getOrder();
 
         if ($order->getPayrightPlanId() !== null) {
-            Mage::helper('payright')->planStatusChange($order->getPayrightPlanId(), 'Active');
+            // TODO Plan must be activated
+            // Mage::helper('payright')->planStatusChange($order->getPayrightPlanId(), 'Active');
         }
     }
 
@@ -92,9 +93,6 @@ class Payright_Payright_Model_Observer {
                 )
             );
             $client->setConfig(array('timeout' => 15));
-
-            // JSON decode the 'data' response
-            // $response = json_decode($client->request()->getBody(), true);
 
             return true;
         } catch (\Exception $e) {

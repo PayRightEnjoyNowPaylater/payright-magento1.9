@@ -56,7 +56,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Restore cart / quote - for users who click 'Back' browser button
             $this->_handleCart(true);
 
-            // Define the 'redirectEndpoint'
+            // Redirect method alternative
             // $this->_redirectUrl($initialiseTransaction['data']['redirectEndpoint']);
 
             // Capture Checkout Id (DO NOT REMOVE)
@@ -69,7 +69,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                 'payright',
                 array('template' => 'payright/redirect.phtml')
             )->setData('builtappendpoint', $builtAppUrl)
-            ->setData('checkoutid', $captureCheckoutId);
+                ->setData('checkoutid', $captureCheckoutId);
 
             $this->getLayout()->getBlock('content')->append($block);
             $this->renderLayout();
@@ -93,17 +93,13 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         $checkoutId = $params['checkoutId'];
         $status = $params['status'];
 
-        // $checkoutId = Mage::app()->getRequest()->getParam('checkoutId');
-        // $status = Mage::app()->getRequest()->getParam('status');
-
         // TODO Add validation from response source. For example, get 'Access Token'?
         // $validated = true;
 
         // Get plan data for the Payright transaction
         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
 
-        // TODO [A] Backup 'Order Id' value from Magento session, testing if works well.
-        // $resOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        // Backup and save current 'Order Id' value from Magento session
         $resOrderId = Mage::getSingleton('core/session')->getSaveOrderId();
 
         // Retrieve specific data, and sanitize / clean with string manipulation
@@ -118,10 +114,16 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         // if ($validated) {
         if ($status != "COMPLETE") {
             $this->cancelAction();
-        } else {
-            // TODO Remove after testing
-            echo $resOrderId;
 
+            // Reset or clear all shopping cart items.=
+            $this->_handleCart(false, true);
+
+            // Display message to customer, that order / checkout has been cancelled
+            Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
+
+            // Redirect customer back to shopping cart
+            $this->_redirect('checkout/cart');
+        } else {
             // Payment was successful, so update the order's state, send order email and move to the success page
             $order = Mage::getModel('sales/order');
             $order->loadByIncrementId($resOrderId);
@@ -129,10 +131,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
             // Set Payright details.
             $order->setPayrightPlanId($resPlanId);
-            $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for? It was $order->setPayrightCheckoutId($ecom), unsure.
+            $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for?
 
-            // TODO sendNewOrderEmail() - Uncaught TypeError: Argument 1 passed to Mage_Payment_Helper_Data::getInfoBlock() must be an
-            // TODO instance of Mage_Payment_Model_Info, boolean given
             // Send customer the email of order
             $order->sendNewOrderEmail();
             $order->setEmailSent(true);
@@ -140,20 +140,27 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // Save the order
             $order->save();
 
+            try {
+                // Activate Payright payment plan
+                $activatePlan = Mage::helper('payright')->activatePlan($checkoutId);
+            } catch(\Exception $e) {
+                Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright payment plan failed to be activate."));
+            }
+
             // Save order ID in sales_flat_order_payment table
             $payment = $order->getPayment();
             $payment->setData('payright_plan_number', $resPlanNumber);
             $payment->save();
 
-            // Since we're done, unset quote Id
+            // Since we're done, unset 'QuoteId'
             Mage::getSingleton('checkout/session')->unsQuoteId();
-
-            // TODO [A] Magento session unset SaveOrderId
+            // And the unset 'SaveOrderId'
             Mage::getSingleton('checkout/session')->unsSaveOrderId();
 
             // Redirect customer to success page
             Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
 
+            // Another way to redirect customers
             // $this->_redirect('checkout/onepage/success', array('_secure' => true));
         }
         //} else {
@@ -168,39 +175,35 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
      *
      *
      */
-    public function cancelAction() {
-        // Get all URL parameters
-        $params = Mage::app()->getRequest()->getParams();
-
-        // Breakdown URL parameters received back
-        $checkoutId = $params['checkoutId'];
-        $status = $params['status'];
-
-        // do the call to getplan data for the payright transaction.
-        $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
-
-        // Retrieve specific data, and sanitize / clean with string manipulation
-        // $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
-        // $resOrderId = isset($json["data"]["merchantReference"]) ? substr($json["data"]["merchantReference"], strlen("MagePayright_")) : null;
-        $resPlanId = isset($json["data"]["planId"]) ? $json["data"]["planId"] : null;
-        // $resPlanNumber = isset($json["data"]["planNumber"]) ? $json["data"]["planNumber"] : null;
-        // $resStatus = isset($json["data"]["status"]) ? $json["data"]["status"] : null; // TODO Not using it YET, using 'status' URL param.
-
-        if (isset($status)) {
-            if ($status != "COMPLETE" && $status != "DECLINE") {
-                $helper = Mage::helper('payright')->planStatusChange($resPlanId, 'Cancelled');
-            }
-        }
-
-        // Reset or clear all shopping cart items.=
-        $this->_handleCart(false, true);
-
-        // Display message to customer, that order / checkout has been cancelled
-        Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
-
-        // Redirect customer back to shopping cart
-        $this->_redirect('checkout/cart');
-    }
+//    public function cancelAction() {
+//        // Get all URL parameters
+//         $params = Mage::app()->getRequest()->getParams();
+//
+//        // Breakdown URL parameters received back
+//         $checkoutId = $params['checkoutId'];
+//         $status = $params['status'];
+//
+//        // do the call to getplan data for the payright transaction.
+//         $json = Mage::helper('payright')->getPlanDataByCheckoutId($checkoutId);
+//
+//        // Retrieve specific data, and sanitize / clean with string manipulation
+//         $resCheckoutId = isset($json["data"]["id"]) ? $json["data"]["id"] : null;
+//         $resOrderId = isset($json["data"]["merchantReference"]) ? substr($json["data"]["merchantReference"], strlen("MagePayright_")) : null;
+//         $resPlanId = isset($json["data"]["planId"]) ? $json["data"]["planId"] : null;
+//         $resPlanNumber = isset($json["data"]["planNumber"]) ? $json["data"]["planNumber"] : null;
+//         $resStatus = isset($json["data"]["status"]) ? $json["data"]["status"] : null;
+//
+//        if (isset($status) && $status != "COMPLETE" && $status != "DECLINE") {
+//            // Reset or clear all shopping cart items.=
+//            $this->_handleCart(false, true);
+//
+//            // Display message to customer, that order / checkout has been cancelled
+//            Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright Checkout has been cancelled."));
+//
+//            // Redirect customer back to shopping cart
+//            $this->_redirect('checkout/cart');
+//        }
+//    }
 
     /**
      *
