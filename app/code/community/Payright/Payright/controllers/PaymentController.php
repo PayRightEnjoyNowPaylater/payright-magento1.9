@@ -130,8 +130,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
 
             // Set Payright details.
-            $order->setPayrightPlanId($resPlanId);
-            $order->setPayrightCheckoutId($resCheckoutId); // TODO What's this for?
+            // $order->setPayrightPlanId($resPlanId);
+            $order->setPayrightCheckoutId($resCheckoutId);
 
             // Send customer the email of order
             $order->sendNewOrderEmail();
@@ -139,13 +139,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
             // Save the order
             $order->save();
-
-            try {
-                // Activate Payright payment plan
-                $activatePlan = Mage::helper('payright')->activatePlan($checkoutId);
-            } catch(\Exception $e) {
-                Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__("Payright payment plan failed to be activate."));
-            }
 
             // Save order ID in sales_flat_order_payment table
             $payment = $order->getPayment();
@@ -159,8 +152,6 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
             // Redirect customer to success page
             Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
-
-            // Another way to redirect customers
             // $this->_redirect('checkout/onepage/success', array('_secure' => true));
         }
         //} else {

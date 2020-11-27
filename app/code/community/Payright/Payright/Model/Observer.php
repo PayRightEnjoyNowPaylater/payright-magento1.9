@@ -18,7 +18,7 @@ class Payright_Payright_Model_Observer {
             $message = 'We require your \'Access Token\', it can be obtained from your merchant store at the developer portal.';
             Mage::getSingleton('adminhtml/session')->addError($message);
         } else {
-            $message = 'Your access token is saved. Please back up your access token '.$authToken.' for safe-keeping.';
+            $message = 'Your access token is saved. Please back up your access token ' . $authToken . ' for safe-keeping.';
             Mage::getSingleton('adminhtml/session')->addSuccess($message);
         }
     }
@@ -55,9 +55,13 @@ class Payright_Payright_Model_Observer {
     public function payrightOrderShipment($observer) {
         $order = $observer->getEvent()->getShipment()->getOrder();
 
-        if ($order->getPayrightPlanId() !== null) {
-            // TODO Plan must be activated
-            // Mage::helper('payright')->planStatusChange($order->getPayrightPlanId(), 'Active');
+        // Check if checkout id exists, if it does then activate plan of checkout.
+        if ($order->getPayrightCheckoutId() !== null) {
+            // Retrieve Payright checkout Id
+            $checkoutId = $order->getPayrightCheckoutId();
+
+            // Activate Payright payment plan
+            Mage::helper('payright')->activatePlan($checkoutId);
         }
     }
 
