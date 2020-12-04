@@ -3,14 +3,6 @@
 // app/code/local/Envato/Custompaymentmethod/controllers/PaymentController.php
 class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Action {
 
-    private $checkoutSession;
-
-    public function __construct(
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession
-    ) {
-        $this->checkoutSession = $checkoutSession;
-    }
-
     public function redirectAction() {
 
         $payApiAuth = Mage::helper('payright')->DoApiCallPayright();
