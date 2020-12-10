@@ -13,8 +13,8 @@
                     <web_url>https://checkout-dev.payright.com.au/</web_url>
                 </sandbox>
                 <production>
-                    <api_url>https://api.payright.com/au</api_url>
-                    <web_url>https://checkout.payright.com/au</web_url>
+                    <api_url>https://api.payright.com/au/</api_url>
+                    <web_url>https://checkout.payright.com/au/</web_url>
                 </production>
             </environments>
         </payright>
