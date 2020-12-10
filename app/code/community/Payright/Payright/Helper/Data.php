@@ -32,6 +32,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * Get customer payment plan from new checkout, by 'checkoutId'.
      * Only used for 'responseAction' function in PaymentController.
      *
+     * @param $merchantReference
+     * @param $saleAmount
+     * @param $redirectUrl
+     * @param $expiresAt
      * @return array
      */
     public function performApiCheckout($merchantReference, $saleAmount, $redirectUrl, $expiresAt) {

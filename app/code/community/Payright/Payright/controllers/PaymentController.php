@@ -24,6 +24,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $saleAmount = number_format((float)$_order->getBaseGrandTotal(), 2, '.', '');
 
             // Generate 'expiresAt', set to expire 6 months from today's datetime.
+            // Also, 'expiresAt' is currently 'optional' usage.
             $dt = new DateTime();
             $interval = new DateInterval('P6M');
             $dt->add($interval);
