@@ -465,6 +465,9 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public
     function getEnvironmentEndpoints() {
+        $store = Mage::app()->getStore()->getStoreId();
+        $region = Mage::getStoreConfig('payment/payrightcheckout/region', $store);
+
         // If the Payright 'Environment Mode' is set to 'sandbox', then get the 'sandbox' API endpoints.
         $envMode = $this->getConfigValue('sandbox');
 
@@ -477,7 +480,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                 $returnEndpoints['AppEndpoint'] = $sandboxAppEndpoint;
             } else {
                 $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url;
-                $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url;
+
+                if($region == "AU") {
+                    $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_au;
+                } else {
+                    $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_nz;
+                }
 
                 $returnEndpoints['ApiUrl'] = $productionApiUrl;
                 $returnEndpoints['AppEndpoint'] = $productionEndpoint;
