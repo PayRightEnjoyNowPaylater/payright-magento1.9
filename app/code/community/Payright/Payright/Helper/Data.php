@@ -481,7 +481,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             } else {
                 $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url;
 
-                if($region == "AU") {
+                if($region == '0') {
                     $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_au;
                 } else {
                     $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_nz;
