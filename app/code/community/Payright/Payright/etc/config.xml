@@ -9,12 +9,14 @@
         <payright>
             <environments>
                 <sandbox>
-                    <api_url>https://byronbay-dev.payright.com.au/</api_url>
+                    <api_url_au>https://sandbox.payright.com/au/checkout/</api_url_au>
+                    <api_url_nz>https://sandbox.payright.com/nz/checkout/</api_url_nz>
                     <web_url_au>https://checkout-dev.payright.com.au/</web_url_au>
                     <web_url_nz>https://checkout-dev.payright.co.nz/</web_url_nz>
                 </sandbox>
                 <production>
-                    <api_url>https://api.payright.com/au/</api_url>
+                    <api_url_au>https://api.payright.com/au/checkout/</api_url_au>
+                    <api_url_nz>https://api.payright.com/nz/checkout/</api_url_nz>
                     <web_url_au>https://checkout.payright.com.au/</web_url_au>
                     <web_url_nz>https://checkout.payright.co.nz/</web_url_nz>
                 </production>
