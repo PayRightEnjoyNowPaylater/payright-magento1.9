@@ -1,6 +1,6 @@
 <?php
 
-class Payright_Payright_Model_RegionList {
+class Payright_Payright_Model_Regionlist {
 
     /**
      * Specify the store region / country, to switch between
