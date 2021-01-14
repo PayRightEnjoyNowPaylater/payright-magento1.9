@@ -8,14 +8,8 @@ class Payright_Payright_Model_Regionlist {
      */
     public function toOptionArray() {
         return array(
-            array(
-                'value' => 'AU',
-                'label' => 'Australia',
-            ),
-            array(
-                'value' => 'NZ',
-                'label' => 'New Zealand',
-            )
+            array('value' => 0, 'label' => Mage::helper('payright')->__('Australia')),
+            array('value' => 1, 'label' => Mage::helper('payright')->__('New Zealand')),
         );
     }
 }
