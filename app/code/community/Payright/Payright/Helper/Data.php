@@ -473,17 +473,24 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         try {
             if ($envMode == '1') {
-                $sandboxApiUrl = Mage::getConfig()->getNode('global/payright/environments/sandbox')->api_url;
-                $sandboxAppEndpoint = Mage::getConfig()->getNode('global/payright/environments/sandbox')->web_url;
+                // Get region / country setting
+                if($region == '0') {
+                    $sandboxApiUrl = Mage::getConfig()->getNode('global/payright/environments/sandbox')->api_url_au;
+                    $sandboxAppEndpoint = Mage::getConfig()->getNode('global/payright/environments/sandbox')->web_url_au;
+                } else {
+                    $sandboxApiUrl = Mage::getConfig()->getNode('global/payright/environments/sandbox')->api_url_nz;
+                    $sandboxAppEndpoint = Mage::getConfig()->getNode('global/payright/environments/sandbox')->web_url_nz;
+                }
 
                 $returnEndpoints['ApiUrl'] = $sandboxApiUrl;
                 $returnEndpoints['AppEndpoint'] = $sandboxAppEndpoint;
             } else {
-                $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url;
-
+                // Get region / country setting
                 if($region == '0') {
+                    $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url_au;
                     $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_au;
                 } else {
+                    $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url_nz;
                     $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_nz;
                 }
 
