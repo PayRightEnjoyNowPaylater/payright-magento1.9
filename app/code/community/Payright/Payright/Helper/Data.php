@@ -15,7 +15,17 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return mixed
      */
     public function getAccessToken() {
-        return $this->getConfigValue('accesstoken');
+        // Get 'data' = 'rates', 'establishmentFees' and 'otherFees'
+        $data = $this->performApiGetRates();
+
+        // Let's try to get rates, with a valid access token
+        // If we detect an invalid 'access token'
+        if(isset($data['status']) && isset($data['message'])) {
+            return "access_token_error";
+        } else {
+            // Else return 'access token'
+            return $this->getConfigValue('accesstoken');
+        }
     }
 
     /**
@@ -185,7 +195,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $authToken = $this->getAccessToken();
 
         // Check if 'Access Token' configured in system configuration
-        if ($authToken) {
+        if ($authToken != "access_token_error") {
             // Get 'data' = 'rates', 'establishmentFees' and 'otherFees'
             $data = $this->performApiGetRates();
 
