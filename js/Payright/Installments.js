@@ -131,7 +131,7 @@
                 if (price
                     && (price >= this.config.minAmount)
                     && (this.config.payrightEnabled)
-                    && (installmentTextobj.loanAmount <= 0 || installmentTextobj.loanAmount !== undefined)) {
+                    && (installmentTextobj.loanAmount <= 0 || installmentTextobj.loanAmount !== undefined || installmentTextobj.loanAmount !== null)) {
                     var oldElement = priceBoxes[i].nextSibling;
                     if (oldElement && oldElement instanceof Element && Element.hasClassName(oldElement, this.config.className)) {
                         oldElement.parentNode.removeChild(oldElement);

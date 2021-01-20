@@ -252,8 +252,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                 } else {
                     return "exceed_amount"; // error 'exceed_amount' text
                 }
-            } else {
-                return "rates_error";
             }
         } else {
             return "auth_token_error";
@@ -465,11 +463,12 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public
     function getEnvironmentEndpoints() {
-        $store = Mage::app()->getStore()->getStoreId();
-        $region = Mage::getStoreConfig('payment/payrightcheckout/region', $store);
+        // Get specified region / country
+        $region = $this->getConfigValue('region');
 
         // If the Payright 'Environment Mode' is set to 'sandbox', then get the 'sandbox' API endpoints.
         $envMode = $this->getConfigValue('sandbox');
+
 
         try {
             if ($envMode == '1') {
