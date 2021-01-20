@@ -201,9 +201,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             if (isset($rates)) {
                 $payrightInstallmentApproval = $this->getMaximumSaleAmount($rates, $saleAmount);
                 // If merchant's rates vs. product prices are approved
-                if ($payrightInstallmentApproval == 0 || $this->getConfigValue('sandbox') == 1) {
+                if ($payrightInstallmentApproval == 0) {
                     // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
                     $loanTerm = $this->fetchLoanTermForSale($rates, $saleAmount);
+
+                    // If 'loan term' given is deemed 'invalid', we just trigger the 'exceed_amount' error
+                    if($loanTerm <= 0) {
+                        return "exceed_amount"; // error 'exceed_amount' text
+                    }
 
                     // Get your 'minimum deposit amount', from 'rates' data received and sale amount.
                     $getMinDeposit = $this->calculateMinDeposit($rates, $saleAmount);
@@ -252,6 +257,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                 } else {
                     return "exceed_amount"; // error 'exceed_amount' text
                 }
+            } else {
+                return "rates_error"; // error 'rates_error' text
             }
         } else {
             return "auth_token_error";
