@@ -12,6 +12,7 @@ class Payright_Payright_Model_Observer {
     public function updateAdminConfiguration($observer) {
         // We try to get 'rates', to determine if 'access token' is invalid
         $data = Mage::helper('payright')->performApiGetRates();
+        $isInvalidAccessToken = isset($data['status']) && isset($data['message']);
 
         $authToken = Mage::helper('payright')->getAccessToken();
 
@@ -20,7 +21,7 @@ class Payright_Payright_Model_Observer {
         if ($emptyAuthToken) {
             $message = 'We require your \'Access Token\', it can be obtained from your merchant store at the developer portal.';
             Mage::getSingleton('adminhtml/session')->addError($message);
-        } else if(!isset($data['status']) && !isset($data['message'])) {
+        } else if($isInvalidAccessToken) {
             $message = 'Your \'Access Token\' is invalid, please specify the correct \'access token\' and store \'region\'.';
             Mage::getSingleton('adminhtml/session')->addError($message);
         } else {
