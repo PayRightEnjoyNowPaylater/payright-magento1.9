@@ -130,7 +130,8 @@
                 // if price isn't empty and min/max order total condition is satisfied then render installments amount
                 if (price
                     && (price >= this.config.minAmount)
-                    && (this.config.payrightEnabled)) {
+                    && (this.config.payrightEnabled)
+                    && (installmentTextobj.loanAmount <= 0 || installmentTextobj.loanAmount !== undefined)) {
                     var oldElement = priceBoxes[i].nextSibling;
                     if (oldElement && oldElement instanceof Element && Element.hasClassName(oldElement, this.config.className)) {
                         oldElement.parentNode.removeChild(oldElement);
