@@ -130,8 +130,7 @@
                 // if price isn't empty and min/max order total condition is satisfied then render installments amount
                 if (price
                     && (price >= this.config.minAmount)
-                    && (this.config.payrightEnabled)
-                    && (installmentTextobj.loanAmount <= 0 || installmentTextobj.loanAmount !== undefined || installmentTextobj.loanAmount !== null)) {
+                    && (this.config.payrightEnabled)) {
                     var oldElement = priceBoxes[i].nextSibling;
                     if (oldElement && oldElement instanceof Element && Element.hasClassName(oldElement, this.config.className)) {
                         oldElement.parentNode.removeChild(oldElement);
@@ -140,7 +139,6 @@
                     Element.insert(priceBoxes[i], {
                         after: "<div class='payright'>From $" + installmentTextobj.loanAmountPerPayment + " a fortnight with " + Payright.Installments.config.template + " </div>"
                     });
-                    // Element.addClassName(priceBoxes[i].nextSibling, this.config.className);
                 } else {
 
                     var oldElement = priceBoxes[i].nextSibling;
