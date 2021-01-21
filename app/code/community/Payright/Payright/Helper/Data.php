@@ -303,8 +303,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         }
 
         if (isset($per)) {
-            // $percentage = min($per);
-            $value = 10 / 100 * $saleAmount;
+            $percentage = min($per);
+            $value = $percentage / 100 * $saleAmount;
             return money_format('%.2n', $value);
         } else {
             return money_format('%.2n', 0);
