@@ -30,7 +30,7 @@ class Payright_Payright_Block_Form_Payright extends Mage_Payment_Block_Form
      */
     public function fetchInstallments()
     {
-        $orderTotal   = $this->getOrderTotal();
+        $orderTotal = $this->getOrderTotal();
         return Mage::helper('payright')->calculateSingleProductInstallment($orderTotal);
     }
 

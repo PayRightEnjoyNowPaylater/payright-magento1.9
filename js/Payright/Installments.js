@@ -79,12 +79,12 @@
     Payright.Installments.render = function (installmentTextobj) {
 
         if (installmentTextobj == 'auth_token_error') {
-            console.log(installmentTextobj);
+            // console.log(installmentTextobj);
             console.warn("Payright API Authentication issue. Please make sure your auth credentials are correct.");
             return;
         }
         if (installmentTextobj == 'exceed_amount') {
-            console.log(installmentTextobj);
+            // console.log(installmentTextobj);
             console.warn("Payright installments cannot be rendered, please make sure the merchant credentials are correct");
             return;
         }
@@ -98,7 +98,7 @@
             return;
         }
         if (!this.config instanceof Object) {
-            console.log(this.config instanceof Object);
+            // console.log(this.config instanceof Object);
             console.warn('Payright: Payright.Installments.config is not set, cannot render installments amount');
             return;
         }
