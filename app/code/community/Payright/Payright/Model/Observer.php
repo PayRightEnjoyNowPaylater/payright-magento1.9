@@ -62,7 +62,7 @@ class Payright_Payright_Model_Observer {
     public function payrightOrderShipment($observer) {
         $order = $observer->getEvent()->getShipment()->getOrder();
 
-        // Check if checkout id exists, if it does then activate plan of checkout.
+        // Check if it is a 'completed order / checkout', if so then activate plan.
         if ($order->getPayrightPlanId() !== null) {
             // Retrieve Payright checkout Id
             $checkoutId = $order->getPayrightCheckoutId();
