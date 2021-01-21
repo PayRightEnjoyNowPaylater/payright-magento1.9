@@ -199,19 +199,25 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
 
             if (isset($rates)) {
-                $payrightInstallmentApproval = $this->getMaximumSaleAmount($rates, $saleAmount);
+
+                // Get your 'minimum deposit amount', from 'rates' data received and sale amount.
+                $getMinDeposit = $this->calculateMinDeposit($rates, $saleAmount);
+
+                // Get 'loan amount', for example: 'sale amount' - 'minimum deposit amount' = loan amount.
+                $loanAmount = $saleAmount - $getMinDeposit;
+
+                // Check if loan amount falls within merchant rates card
+                $payrightInstallmentApproval = $this->getMaximumSaleAmount($rates, $loanAmount);
+
                 // If merchant's rates vs. product prices are approved
-                if ($payrightInstallmentApproval == 0) {
+                if ($payrightInstallmentApproval) {
                     // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
-                    $loanTerm = $this->fetchLoanTermForSale($rates, $saleAmount);
+                    $loanTerm = $this->fetchLoanTermForSale($rates, $loanAmount);
 
                     // If 'loan term' given is deemed 'invalid', we just trigger the 'exceed_amount' error
                     if($loanTerm <= 0) {
                         return "exceed_amount"; // error 'exceed_amount' text
                     }
-
-                    // Get your 'minimum deposit amount', from 'rates' data received and sale amount.
-                    $getMinDeposit = $this->calculateMinDeposit($rates, $saleAmount);
 
                     // Get your 'payment frequency', from 'monthly account keeping fee' and 'loan term'
                     $getPaymentFrequency = $this->getPaymentFrequency($accountKeepingFee, $loanTerm);
@@ -219,9 +225,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                     // Calculate and collect all 'number of repayments' and 'monthly account keeping fees'
                     $calculatedNumberOfRepayments = $getPaymentFrequency['numberOfRepayments'];
                     $calculatedAccountKeepingFees = $getPaymentFrequency['accountKeepingFees'];
-
-                    // Get 'loan amount', for example: 'sale amount' - 'minimum deposit amount' = loan amount.
-                    $loanAmount = $saleAmount - $getMinDeposit;
 
                     // For 'total credit required' output. Format the 'loan amount', into currency format.
                     $formattedLoanAmount = number_format((float)$loanAmount, 2, '.', '');
@@ -350,11 +353,11 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      * Get the loan term for sale amount.
      *
      * @param array $rates rates for merchant
-     * @param float $saleAmount sale amount
-     * @return float loan amount
+     * @param float $loanAmount the loan amount
+     * @return float minimum loan term
      */
     public
-    function fetchLoanTermForSale($rates, $saleAmount) {
+    function fetchLoanTermForSale($rates, $loanAmount) {
         $ratesArray = null;
         //$generateLoanTerm = '';
 
@@ -363,7 +366,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $ratesArray[$key]['minimumPurchase'] = $rate['minimumPurchase'];
             $ratesArray[$key]['maximumPurchase'] = $rate['maximumPurchase'];
 
-            if (($saleAmount >= $ratesArray[$key]['minimumPurchase'] && $saleAmount <= $ratesArray[$key]['maximumPurchase'])) {
+            if (($loanAmount >= $ratesArray[$key]['minimumPurchase'] && $loanAmount <= $ratesArray[$key]['maximumPurchase'])) {
                 $generateLoanTerm[] = $ratesArray[$key]['term'];
             }
         }
@@ -407,16 +410,16 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     /**
-     * Get the maximum limit for sale amount
+     * Get the maximum limit for loan amount
      *
      * @param array $getRates get the rates for merchant
-     * @param float $saleAmount price of purchased amount
-     * @return int allowed loan limit in form 0 or 1, 0 means sale amount is still in limit and 1 is over limit
+     * @param float $loanAmount get loan amount
+     * @return boolean allowed loan limit in form false or true, true means loan amount is still in limit and false is over limit
      */
-    public function getMaximumSaleAmount($getRates, $saleAmount) {
+    public function getMaximumSaleAmount($getRates, $loanAmount) {
 
-        // Define 'loan limit boolean check, 0 = within / under limit and 1 = over limit.
-        $chkLoanLimit = 0;
+        // Define 'loan limit boolean check, false = within / under limit and true = over limit.
+        $chkLoanLimit = false;
 
         // Declare $getVal[] array first time.
         $getVal[] = null;
@@ -427,10 +430,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
             $getVal[] = $value["maximumPurchase"];
         }
 
-        // If 'sale amount' is over the maximum 'allowed loan limit', then true.
-        // AKA if 'sale amount' > max loan limit.
-        if (max($getVal) < $saleAmount) {
-            $chkLoanLimit = 1;
+        // If 'loan amount' is over the maximum 'allowed loan limit', then true.
+        // AKA if 'loan amount' > max loan limit.
+        if (max($getVal) < $loanAmount) {
+            $chkLoanLimit = true;
         }
 
         // Else, still within / under the 'allowed loan limit'.
