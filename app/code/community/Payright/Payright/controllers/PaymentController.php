@@ -131,7 +131,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
 
             // Set Payright details.
-            // $order->setPayrightPlanId($resPlanId);
+            $order->setPayrightPlanId($resPlanId);
             $order->setPayrightCheckoutId($resCheckoutId);
 
             // Send customer the email of order

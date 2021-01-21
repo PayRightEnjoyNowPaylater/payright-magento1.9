@@ -63,12 +63,16 @@ class Payright_Payright_Model_Observer {
         $order = $observer->getEvent()->getShipment()->getOrder();
 
         // Check if checkout id exists, if it does then activate plan of checkout.
-        if ($order->getPayrightCheckoutId() !== null) {
+        if ($order->getPayrightPlanId() !== null) {
             // Retrieve Payright checkout Id
             $checkoutId = $order->getPayrightCheckoutId();
 
             // Activate Payright payment plan
-            Mage::helper('payright')->activatePlan($checkoutId);
+            $helper = Mage::helper('payright');
+            $helper->activatePlan($checkoutId);
+        } else {
+            $message = 'The payment plan failed to be activated.';
+            Mage::getSingleton('adminhtml/session')->addError($message);
         }
     }
 
