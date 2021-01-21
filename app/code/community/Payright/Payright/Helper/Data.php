@@ -418,8 +418,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getMaximumSaleAmount($getRates, $loanAmount) {
 
-        // Define 'loan limit boolean check, false = within / under limit and true = over limit.
-        $chkLoanLimit = false;
+        // Define 'loan limit boolean check, true = within / under limit and false = over limit.
+        $chkLoanLimit = true;
 
         // Declare $getVal[] array first time.
         $getVal[] = null;
@@ -432,8 +432,8 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
 
         // If 'loan amount' is over the maximum 'allowed loan limit', then true.
         // AKA if 'loan amount' > max loan limit.
-        if (max($getVal) < $loanAmount) {
-            $chkLoanLimit = true;
+        if ($loanAmount > max($getVal)) {
+            $chkLoanLimit = false;
         }
 
         // Else, still within / under the 'allowed loan limit'.
