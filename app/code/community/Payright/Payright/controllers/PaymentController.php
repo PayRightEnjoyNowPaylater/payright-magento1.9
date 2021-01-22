@@ -135,6 +135,9 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $order->setPayrightPlanId($resPlanId);
             $order->setPayrightCheckoutId($resCheckoutId);
 
+            Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__("Plan Id: ".$order->getPayrightPlanId()));
+            Mage::getSingleton('checkout/session')->addSuccess(Mage::helper('checkout')->__("Checkout Id: ".$order->getPayrightCheckoutId()));
+
             // Send customer the email of order
             $order->sendNewOrderEmail();
             $order->setEmailSent(true);
