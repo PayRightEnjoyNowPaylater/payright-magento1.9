@@ -60,13 +60,8 @@ class Payright_Payright_Model_Observer {
      * @param $observer
      */
     public function payrightOrderShipment($observer) {
-        $order = $observer->getEvent()->getShipment()->getOrder();
-
-        $order = Mage::getModel('sales/order');
-        $order->loadByIncrementId(Mage::getSingleton('core/session')->getSaveOrderId());
-
-        error_log("Plan Id".$order->getPayrightPlanId(), 0);
-        error_log("Checkout Id".$order->getPayrightCheckoutId(), 0);
+        // $order = $observer->getEvent()->getShipment()->getOrder();
+        $order = $observer->getEvent()->getOrder();
 
         // Check if it is a 'completed order / checkout', if so then activate plan.
         if ($order->getPayrightPlanId() !== null) {
