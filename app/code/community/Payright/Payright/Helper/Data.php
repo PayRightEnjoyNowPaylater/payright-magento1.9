@@ -123,13 +123,14 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         $client->setHeaders(
             array(
                 'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->getAccessToken()
             )
         );
         $client->setConfig(array('timeout' => 15));
 
         // Lastly, define PUT method (we use POST for Zend_Http_Client), with json body data sent
-        $response = $client->request('POST');
+        $response = $client->request('PUT');
 
         // Response is data->message = 'Checkout activated'
         // else data->error and data->message
