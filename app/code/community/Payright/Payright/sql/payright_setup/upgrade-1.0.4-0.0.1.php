@@ -13,4 +13,8 @@ if ($connection->tableColumnExists($table, 'payright_checkout_id') === false) {
     $installer->getConnection()->addColumn($table, "payright_checkout_id", "varchar(255) DEFAULT NULL COMMENT 'PayRight Checkout Id'");
 }
 
+if ($connection->tableColumnExists($table, 'payright_plan_id') === false) {
+    $installer->getConnection()->addColumn($table, "payright_plan_id", "varchar(255) DEFAULT NULL COMMENT 'PayRight Plan Id'");
+}
+
 $installer->endSetup();
