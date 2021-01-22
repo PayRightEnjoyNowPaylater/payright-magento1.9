@@ -92,6 +92,7 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
 
         // Breakdown URL parameters received back
         $checkoutId = $params['checkoutId'];
+        $orderId = $params['orderId'];
         $status = $params['status'];
 
         // TODO Add validation from response source. For example, get 'Access Token'?
@@ -127,12 +128,14 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
         } else {
             // Payment was successful, so update the order's state, send order email and move to the success page
             $order = Mage::getModel('sales/order');
-            $order->loadByIncrementId($resOrderId);
+            $order->loadByIncrementId($orderId);
             $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
 
             // Set Payright details.
             $order->setPayrightPlanId($resPlanId);
             $order->setPayrightCheckoutId($resCheckoutId);
+
+            Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__($order->getPayrightPlanId()));
 
             // Send customer the email of order
             $order->sendNewOrderEmail();
