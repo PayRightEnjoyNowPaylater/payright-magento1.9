@@ -131,10 +131,10 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             $order->loadByIncrementId($resOrderId);
             $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, 'Gateway has authorized the payment.');
 
-            error_log("Plan ID: ".$resPlanId);
-            error_log($order->setPayrightPlanId($resPlanId));
-            error_log("Checkout ID: ".$resCheckoutId);
-            error_log($order->setPayrightCheckoutId($resCheckoutId));
+            error_log("Plan ID: ".$resPlanId, 0);
+            error_log($order->setPayrightPlanId($resPlanId), 0);
+            error_log("Checkout ID: ".$resCheckoutId, 0);
+            error_log($order->setPayrightCheckoutId($resCheckoutId), 0);
 
             // Set Payright details.
             $order->setPayrightPlanId($resPlanId);
