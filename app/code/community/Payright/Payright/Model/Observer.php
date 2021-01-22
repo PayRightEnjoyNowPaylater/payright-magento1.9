@@ -72,7 +72,6 @@ class Payright_Payright_Model_Observer {
             $helper = Mage::helper('payright');
             $helper->activatePlan($checkoutId);
         } else {
-            error_log("Plan ID: ".$planId);
             $message = 'The payment plan failed to be activated.';
             Mage::getSingleton('adminhtml/session')->addError($message);
         }
