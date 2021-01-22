@@ -232,10 +232,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                     // Process 'establishment fees', from 'loan term' and 'establishment fees' (response)
                     $resEstablishmentFees = $this->getEstablishmentFees($loanTerm, $establishmentFees);
 
-                    // TODO Keep or discard below? Currently, unused I think.
-                    // $establishmentFeePerPayment = $resEstablishmentFees / $calculatedNumberOfRepayments;
-                    // $loanAmountPerPayment = $formattedLoanAmount / $calculatedNumberOfRepayments;
-
                     // Calculate repayment, to get 'loan amount' as 'loan amount per payment'.
                     $calculateRepayments = $this->calculateRepayment(
                         $calculatedNumberOfRepayments,
@@ -295,19 +291,35 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      *
      * @param array $getRates
      * @param int $saleAmount amount for purchased product
-     * @return float min deposit
+     * @return float calculated min deposit
      */
     public function calculateMinDeposit($getRates, $saleAmount) {
+        // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
+        $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
+
+        // Extract our target 'deposit percentage' (from matching 'loan term',
+        // and 'sale amount' within min / max purchase amount)
         foreach ($getRates as $key => $value) {
-            $per[] = $value["minimumDepositPercentage"];
+            if ($value["term"] == $loanTerm
+                && ($saleAmount >= $value["minimumPurchase"]
+                    && $saleAmount <= $value["maximumPurchase"])) {
+                $percentage = $value["minimumDepositPercentage"];
+                break;
+            }
         }
 
-        if (isset($per)) {
-            $percentage = min($per);
+        // Define $value
+        $value = 0;
+
+        if (isset($percentage)) {
             $value = $percentage / 100 * $saleAmount;
+        }
+
+        // If above PHP 7.4 check, source: https://www.php.net/manual/en/function.money-format.php
+        if (function_exists('money_format')) {
             return money_format('%.2n', $value);
         } else {
-            return money_format('%.2n', 0);
+            return sprintf('%01.2f', $value);
         }
     }
 
