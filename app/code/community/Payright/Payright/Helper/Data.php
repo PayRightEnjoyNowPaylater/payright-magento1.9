@@ -194,81 +194,71 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         // Get 'data' = 'rates', 'establishmentFees' and 'otherFees'
         $data = $this->performApiGetRates();
 
-        // Check if 'Access Token' configured in system configuration
-        if ($authToken && (!isset($data['status']) && !isset($data['message']))) {
-            // Breakdown 'data' into usable variables
-            $rates = $data['rates'];
-            $establishmentFees = $data['establishmentFees'];
+        // Breakdown fields of 'data'
+        $rates = $data['rates'];
+        $establishmentFees = $data['establishmentFees'];
 
-            // We need the mentioned 'otherFees' below, to calculate for 'payment frequency'
-            // and 'loan amount per repayment'
-            $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
-            $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
+        // We need the mentioned 'otherFees' below, to calculate for 'payment frequency'
+        // and 'loan amount per repayment'
+        $accountKeepingFee = $data['otherFees']['monthlyAccountKeepingFee'];
+        $paymentProcessingFee = $data['otherFees']['paymentProcessingFee'];
 
-            if (isset($rates)) {
+        // Check if the sale amount falls within the rate card, and determine lowest term and deposit
+        $minimumDepositAndTerm = $this->getMinimumDepositAndTerm($rates, $saleAmount);
 
-                // Get your 'minimum deposit amount', from 'rates' data received and sale amount.
-                $getMinDeposit = $this->calculateMinDeposit($rates, $saleAmount);
+        // Breakdown fields of 'minimumDepositAndTerm'
+        $depositAmount = $minimumDepositAndTerm['minimumDepositAmount']; // minimum deposit amount = deposit amount
+        $term = $minimumDepositAndTerm['minimumDepositTerm']; // loan term = term
+        $loanAmount = $saleAmount - $depositAmount; // 'minimum deposit amount' = 'deposit amount'.
 
-                // Get 'loan amount', for example: 'sale amount' - 'minimum deposit amount' = loan amount.
-                $loanAmount = $saleAmount - $getMinDeposit;
+        // Begin 'Catch Error Types'
+        if (!isset($rates)) {
+            return "rates_error";
+        }
 
-                // Check if loan amount falls within merchant rates card
-                $payrightInstallmentApproval = $this->getMaximumSaleAmount($rates, $loanAmount);
+        if (empty($minimumDepositAndTerm)) {
+            return "exceed_amount";
+        }
 
-                // If merchant's rates vs. product prices are approved
-                if ($payrightInstallmentApproval) {
-                    // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
-                    $loanTerm = $this->fetchLoanTermForSale($rates, $loanAmount);
-
-                    // If 'loan term' given is deemed 'invalid', we just trigger the 'exceed_amount' error
-                    if($loanTerm <= 0) {
-                        return "exceed_amount"; // error 'exceed_amount' text
-                    }
-
-                    // Get your 'payment frequency', from 'monthly account keeping fee' and 'loan term'
-                    $getPaymentFrequency = $this->getPaymentFrequency($accountKeepingFee, $loanTerm);
-
-                    // Calculate and collect all 'number of repayments' and 'monthly account keeping fees'
-                    $calculatedNumberOfRepayments = $getPaymentFrequency['numberOfRepayments'];
-                    $calculatedAccountKeepingFees = $getPaymentFrequency['accountKeepingFees'];
-
-                    // For 'total credit required' output. Format the 'loan amount', into currency format.
-                    $formattedLoanAmount = number_format((float)$loanAmount, 2, '.', '');
-
-                    // Process 'establishment fees', from 'loan term' and 'establishment fees' (response)
-                    $resEstablishmentFees = $this->getEstablishmentFees($loanTerm, $establishmentFees);
-
-                    // Calculate repayment, to get 'loan amount' as 'loan amount per payment'.
-                    $calculateRepayments = $this->calculateRepayment(
-                        $calculatedNumberOfRepayments,
-                        $calculatedAccountKeepingFees,
-                        $resEstablishmentFees,
-                        $loanAmount,
-                        $paymentProcessingFee);
-
-                    // The entire breakdown for calculated single product 'installment'.
-                    $dataResponseArray['loanAmount'] = $loanAmount;
-                    $dataResponseArray['establishmentFee'] = $resEstablishmentFees;
-                    $dataResponseArray['minDeposit'] = $getMinDeposit;
-                    $dataResponseArray['totalCreditRequired'] = $this->totalCreditRequired($formattedLoanAmount, $resEstablishmentFees);
-                    $dataResponseArray['accountKeepingFee'] = $accountKeepingFee;
-                    $dataResponseArray['paymentProcessingFee'] = $paymentProcessingFee;
-                    $dataResponseArray['saleAmount'] = $saleAmount;
-                    $dataResponseArray['numberOfRepayments'] = $calculatedNumberOfRepayments;
-                    $dataResponseArray['repaymentFrequency'] = 'Fortnightly';
-                    $dataResponseArray['loanAmountPerPayment'] = $calculateRepayments;
-
-                    return $dataResponseArray;
-                } else {
-                    return "exceed_amount"; // error 'exceed_amount' text
-                }
-            } else {
-                return "rates_error"; // error 'rates_error' text
-            }
-        } else {
+        if (!isset($authToken)) {
             return "auth_token_error";
         }
+        // End 'Catch Error Types'
+
+        // Get your 'payment frequency', from 'monthly account keeping fee' and 'loan term'
+        $getPaymentFrequency = $this->getPaymentFrequency($accountKeepingFee, $term);
+
+        // Calculate and collect all 'number of repayments' and 'monthly account keeping fees'
+        $calculatedNumberOfRepayments = $getPaymentFrequency['numberOfRepayments'];
+        $calculatedAccountKeepingFees = $getPaymentFrequency['accountKeepingFees'];
+
+        // For 'total credit required' output. Format the 'loan amount', into currency format.
+        $formattedLoanAmount = number_format((float)$loanAmount, 2, '.', '');
+
+        // Process 'establishment fees', from 'loan term' and 'establishment fees' (response)
+        $resEstablishmentFees = $this->getEstablishmentFees($term, $establishmentFees);
+
+        // Calculate repayment, to get 'loan amount' as 'loan amount per payment'.
+        $calculateRepayments = $this->calculateRepayment(
+            $calculatedNumberOfRepayments,
+            $calculatedAccountKeepingFees,
+            $resEstablishmentFees,
+            $loanAmount,
+            $paymentProcessingFee);
+
+        // The entire breakdown for calculated single product 'installment'.
+        $dataResponseArray['loanAmount'] = $loanAmount;
+        $dataResponseArray['establishmentFee'] = $resEstablishmentFees;
+        $dataResponseArray['minDeposit'] = $depositAmount;
+        $dataResponseArray['totalCreditRequired'] = $this->totalCreditRequired($formattedLoanAmount, $resEstablishmentFees);
+        $dataResponseArray['accountKeepingFee'] = $accountKeepingFee;
+        $dataResponseArray['paymentProcessingFee'] = $paymentProcessingFee;
+        $dataResponseArray['saleAmount'] = $saleAmount;
+        $dataResponseArray['numberOfRepayments'] = $calculatedNumberOfRepayments;
+        $dataResponseArray['repaymentFrequency'] = 'Fortnightly';
+        $dataResponseArray['loanAmountPerPayment'] = $calculateRepayments;
+
+        return $dataResponseArray;
     }
 
     /**
@@ -293,41 +283,29 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         return number_format($repaymentAmount, 2, '.', ',');
     }
 
-    /**
-     * Calculate minimum deposit that needs to be paid, based on sale amount
+    /*
+     * Get minimum deposit amount + percentage + term (loan term)
      *
-     * @param array $getRates
-     * @param int $saleAmount amount for purchased product
-     * @return float calculated min deposit
      */
-    public function calculateMinDeposit($getRates, $saleAmount) {
-        // Get your 'loan term'. For example, term = 4 fortnights (28 weeks).
-        $loanTerm = $this->fetchLoanTermForSale($getRates, $saleAmount);
+    function getMinimumDepositAndTerm($rates, $saleAmount) {
+        // Iterate through each term, apply the minimum deposit to the sale amount and see if it fits in the rate card. If not found, move to a higher term
+        foreach ($rates as $rate) {
+            $minimumDepositPercentage = $rate['minimumDepositPercentage'];
+            $depositAmount = $saleAmount * ($minimumDepositPercentage / 100);
+            $loanAmount = $saleAmount - $depositAmount;
 
-        // Extract our target 'deposit percentage' (from matching 'loan term',
-        // and 'sale amount' within min / max purchase amount)
-        foreach ($getRates as $key => $value) {
-            if ($value["term"] == $loanTerm
-                && ($saleAmount >= $value["minimumPurchase"]
-                    && $saleAmount <= $value["maximumPurchase"])) {
-                $percentage = $value["minimumDepositPercentage"];
-                break;
+            // Check if loan amount is within range
+            if ($loanAmount >= $rate['minimumPurchase'] && $loanAmount <= $rate['maximumPurchase']) {
+                return [
+                    'minimumDepositPercentage' => $minimumDepositPercentage,
+                    // If above PHP 7.4 check, source: https://www.php.net/manual/en/function.money-format.php
+                    'minimumDepositAmount' => function_exists('money_format') ? money_format('%.2n', $depositAmount) : sprintf('%01.2f', $depositAmount),
+                    'minimumDepositTerm' => $rate['term'],
+                ];
             }
         }
-
-        // Define $value
-        $value = 0;
-
-        if (isset($percentage)) {
-            $value = $percentage / 100 * $saleAmount;
-        }
-
-        // If above PHP 7.4 check, source: https://www.php.net/manual/en/function.money-format.php
-        if (function_exists('money_format')) {
-            return money_format('%.2n', $value);
-        } else {
-            return sprintf('%01.2f', $value);
-        }
+        // No valid term and deposit found
+        return [];
     }
 
     /**
@@ -406,19 +384,10 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public
     function getEstablishmentFees($loanTerm, $establishmentFees) {
-        // $fee_bandArray = null;
-        // $feeBandCalculator = 0;
-
         foreach ($establishmentFees as $key => $estFee) {
-            // $fee_bandArray[$key]['term'] = $estFee['term'];
-            // $fee_bandArray[$key]['initialEstFee'] = $estFee['initialEstFee'];
-            // $fee_bandArray[$key]['repeatEstFee'] = $estFee['repeatEstFee'];
-
             if ($estFee['term'] == $loanTerm) {
                 $initialEstFee = $estFee['initialEstFee'];
             }
-
-            // $feeBandCalculator++;
         }
 
         if (isset($initialEstFee)) {
@@ -426,37 +395,6 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         } else {
             return 0;
         }
-    }
-
-    /**
-     * Get the maximum limit for loan amount
-     *
-     * @param array $getRates get the rates for merchant
-     * @param float $loanAmount get loan amount
-     * @return boolean allowed loan limit in form false or true, true means loan amount is still in limit and false is over limit
-     */
-    public function getMaximumSaleAmount($getRates, $loanAmount) {
-
-        // Define 'loan limit boolean check, true = within / under limit and false = over limit.
-        $chkLoanLimit = true;
-
-        // Declare $getVal[] array first time.
-        $getVal[] = null;
-
-        // Get all 'maximumPurchase' values from rates.
-        foreach ($getRates as $key => $value) {
-            // Build a 'maximumPurchase' array list for later use.
-            $getVal[] = $value["maximumPurchase"];
-        }
-
-        // If 'loan amount' is over the maximum 'allowed loan limit', then true.
-        // AKA if 'loan amount' > max loan limit.
-        if ($loanAmount > max($getVal)) {
-            $chkLoanLimit = false;
-        }
-
-        // Else, still within / under the 'allowed loan limit'.
-        return $chkLoanLimit;
     }
 
     /**
@@ -502,7 +440,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
         try {
             if ($envMode == '1') {
                 // Get region / country setting
-                if($region == '0') {
+                if ($region == '0') {
                     $sandboxApiUrl = Mage::getConfig()->getNode('global/payright/environments/sandbox')->api_url_au;
                     $sandboxAppEndpoint = Mage::getConfig()->getNode('global/payright/environments/sandbox')->web_url_au;
                 } else {
@@ -514,7 +452,7 @@ class Payright_Payright_Helper_Data extends Mage_Core_Helper_Abstract {
                 $returnEndpoints['AppEndpoint'] = $sandboxAppEndpoint;
             } else {
                 // Get region / country setting
-                if($region == '0') {
+                if ($region == '0') {
                     $productionApiUrl = Mage::getConfig()->getNode('global/payright/environments/production')->api_url_au;
                     $productionEndpoint = Mage::getConfig()->getNode('global/payright/environments/production')->web_url_au;
                 } else {
