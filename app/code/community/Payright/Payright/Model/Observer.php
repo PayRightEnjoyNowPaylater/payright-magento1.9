@@ -62,15 +62,22 @@ class Payright_Payright_Model_Observer {
     public function payrightOrderShipment($observer) {
         $order = $observer->getEvent()->getShipment()->getOrder();
 
+        // Retrieve Payright plan Id
+        $planId = $order->getPayrightPlanId();
+
         // Check if it is a 'completed order / checkout', if so then activate plan.
-        if ($order->getPayrightPlanId() !== null) {
+        if ($planId !== null) {
             // Retrieve Payright checkout Id
             $checkoutId = $order->getPayrightCheckoutId();
 
             // Activate Payright payment plan
             $helper = Mage::helper('payright');
             $helper->activatePlan($checkoutId);
+
+            // Add 'plan activation' comment into order comment history
+            $order->addStatusHistoryComment('Payright payment plan '.$planId.'has been activated.');
         } else {
+            // Return payment plan failed to activate message to administrator
             $message = 'The payment plan failed to be activated.';
             Mage::getSingleton('adminhtml/session')->addError($message);
         }
