@@ -17,7 +17,10 @@ This section outlines the steps to install the Payright plugin for the first tim
 
 >  [MAGENTO] refers to the installed Magento file directory. Such as `/var/www/magento1.9`
 
-#### Steps
+#### Requirements
++ Access Token - A 'sandbox access token', or 'production access token'.
+
+#### How to install
 
 1. Download the PayRight plugin, as a `.zip` or `tar.gz` file from the Payright GitHub directory.
 2. Unzip the file.
@@ -32,27 +35,21 @@ This section outlines the steps to install the Payright plugin for the first tim
 1. Login to Magento Admin and navigate to **System** > **Cache Management**.
 1. Flush the cache storage by selecting **Flush Cache Storage** from **System** > **Cache Management**.
 
-### 1.2  Payright Merchant Setup
+### 1.2	Payright Plugin 
 
+#### Primary Configuration
 Complete the below steps to configure the merchant’s Payright merchant configuration settings in Magento Admin.
-
-#### Requirements
-
-1. Acquire a Payright merchant **Access Token** from Payright. This is obtained when creating a new **Access Token** for a merchant store.
-
-#### Steps
 
 1. Login to Magento Admin and navigate to **System** > **Configuration** > **Sales** > **Payment Methods** > **Payright**.
 1. Enter your store **Access Token**.
-1. Enable the Payright plugin by selecting "yes" from the Enabled field.
+1. Select your store **Region** (either Australia or New Zealand).
+1. Enable the Payright plugin by selecting 'Yes' from the 'Enabled' field.
 1. Configure the Payright API Mode
    1. **Sandbox Mode** for testing on a staging instance.
    1. **Production Mode** for a live website and legitimate transactions.
 1. Save the configuration settings.
 
-### 1.3  Payright Display Configuration
-
-#### Steps
+#### Secondary Configurations
 
 1. Login to Magento Admin and navigate to **System** > **Configuration** > **Sales** > **Payment Methods** > **Payright**.
 1. Configure the display of the Payright installments details on Product Pages (individual product display pages).
