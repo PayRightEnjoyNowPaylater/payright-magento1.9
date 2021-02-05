@@ -1,9 +1,9 @@
-# payright-magento1.9
+## payright-magento1.9
 
 PayRight payment method plugin for Magento v1.9, follow the steps below for 
 configuration setup and installation.
 
-# Security Warning
+### Security Warning
 
 30 June 2020, Adobe no longer offers security updates for the Magento v1.x platform. 
 
@@ -11,13 +11,13 @@ Hence, this means that the stores running Magento v1.x will be vulnerable to cyb
 
 It is recommended to upgrade your store to Magento v2.x, and install our Magento v2.x Payright plugin.
 
-# 1.1 New Payright Installation
+### 1.1 New Payright Installation
 
 This section outlines the steps to install the Payright plugin for the first time.
 
->  [MAGENTO] refers to the root folder where Magento is installed.
+>  [MAGENTO] refers to the installed Magento file directory. Such as `/var/www/magento1.9`
 
-## Steps
+#### Steps
 
 1. Download the PayRight plugin, as a `.zip` or `tar.gz` file from the Payright GitHub directory.
 2. Unzip the file.
@@ -32,15 +32,15 @@ This section outlines the steps to install the Payright plugin for the first tim
 1. Login to Magento Admin and navigate to **System** > **Cache Management**.
 1. Flush the cache storage by selecting **Flush Cache Storage** from **System** > **Cache Management**.
 
-# 1.2  Payright Merchant Setup
+### 1.2  Payright Merchant Setup
 
 Complete the below steps to configure the merchant’s Payright merchant configuration settings in Magento Admin.
 
-## Requirements
+#### Requirements
 
 1. Acquire a Payright merchant **Access Token** from Payright. This is obtained when creating a new **Access Token** for a merchant store.
 
-## Steps
+#### Steps
 
 1. Login to Magento Admin and navigate to **System** > **Configuration** > **Sales** > **Payment Methods** > **Payright**.
 1. Enter your store **Access Token**.
@@ -50,9 +50,9 @@ Complete the below steps to configure the merchant’s Payright merchant configu
    1. **Production Mode** for a live website and legitimate transactions.
 1. Save the configuration settings.
 
-# 1.3  Payright Display Configuration
+### 1.3  Payright Display Configuration
 
-## Steps
+#### Steps
 
 1. Login to Magento Admin and navigate to **System** > **Configuration** > **Sales** > **Payment Methods** > **Payright**.
 1. Configure the display of the Payright installments details on Product Pages (individual product display pages).
