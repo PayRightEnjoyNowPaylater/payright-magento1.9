@@ -1,0 +1,19 @@
+<?php
+$logo = $this->getLogo();
+$title = $this->getTitle();
+?>
+
+<?php if (!empty($logo)): ?>
+    <?php echo($logo); ?>
+<?php endif; ?>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        jQuery('.payright-what-is-modal-trigger').click(function (event) {
+            jQuery('#payright_modal654').show();
+        });
+        jQuery('#PayrightHowitWorksmodalPopup > #close').click(function (event) {
+            jQuery('#payright_modal654').hide();
+        });
+    });
+</script>

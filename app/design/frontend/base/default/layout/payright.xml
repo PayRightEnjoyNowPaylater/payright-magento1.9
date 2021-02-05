@@ -1,0 +1,36 @@
+<layout version="0.1.0">
+    <default translate="label" module="page">
+        <reference name="content">
+            <block type="payright/products" output="toHtml" name="myblock" template="payright/products.phtml"
+                   after="-"/>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>payright/css/payright-modal.css</name>
+            </action>
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>payright/css/payrightModalMain.css</name>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="core/template" name="payright.modal" template="payright/modal.phtml"/>
+        </reference>
+    </default>
+    <catalog_product_view translate="label">
+        <reference name="before_body_end">
+            <block type="payright/catalog_installments" name="payright.installments"
+                   template="payright/catalog/installments.phtml" data-type="product_view"><!--after="prices" -->
+                <action method="setPageType">
+                    <pageType>product_page</pageType>
+                </action>
+            </block>
+        </reference>
+        <reference name="head">
+            <action method="addJs">
+                <script>Payright/Installments.js</script>
+            </action>
+        </reference>
+    </catalog_product_view>
+</layout>
