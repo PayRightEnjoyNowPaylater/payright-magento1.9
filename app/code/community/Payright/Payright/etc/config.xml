@@ -1,63 +1,72 @@
 <?xml version="1.0"?>
-<config> 
+<config>
     <modules>
         <Payright_Payright>
-            <version>1.0.0.0</version>
+            <version>1.0.5</version>
         </Payright_Payright>
     </modules>
-<global>
-    <payright>
-        <environments>
-            <sandbox>
-                <api_url>https://api.payright.com.au/</api_url>
-                <web_url>https://betaonline.payright.com.au</web_url>
-            </sandbox>
-            <production>
-                <api_url>https://liveapi.payright.com.au/</api_url>
-                <web_url>https://online.payright.com.au</web_url>
-            </production>
-        </environments>
-    </payright>
+    <global>
+        <payright>
+            <environments>
+                <sandbox>
+                    <api_url_au>https://sandbox.payright.com/au/checkout/</api_url_au>
+                    <api_url_nz>https://sandbox.payright.com/nz/checkout/</api_url_nz>
+                    <web_url_au>https://checkout-dev.payright.com.au/</web_url_au>
+                    <web_url_nz>https://checkout-dev.payright.co.nz/</web_url_nz>
+                </sandbox>
+                <production>
+                    <api_url_au>https://api.payright.com/au/checkout/</api_url_au>
+                    <api_url_nz>https://api.payright.com/nz/checkout/</api_url_nz>
+                    <web_url_au>https://checkout.payright.com.au/</web_url_au>
+                    <web_url_nz>https://checkout.payright.co.nz/</web_url_nz>
+                </production>
+            </environments>
+        </payright>
         <models>
             <payright>
                 <class>Payright_Payright_Model</class>
             </payright>
         </models>
-
-       <helpers>
+        <helpers>
             <payright>
                 <class>Payright_Payright_Helper</class>
             </payright>
         </helpers>
-
         <blocks>
             <payright>
                 <class>Payright_Payright_Block</class>
             </payright>
         </blocks>
-
         <resources>
-            <Payright_Payright_setup>
-             <setup>
-              <module>Payright_Payright</module>
-            </setup>
-            </Payright_Payright_setup>
+            <payright_setup>
+                <setup>
+                    <module>Payright_Payright</module>
+                    <class>Mage_Sales_Model_Resource_Setup</class>
+                </setup>
+            </payright_setup>
         </resources>
         <events>
             <payment_method_is_active>
                 <observers>
                     <payright123_payment_method_is_active>
-                          <type>singleton</type>
-                          <class>payright/observer</class>
-                          <!-- <method>test</method> -->
-                            <method>disablePayright</method>
+                        <type>singleton</type>
+                        <class>payright/observer</class>
+                        <!-- <method>test</method> -->
+                        <method>disablePayright</method>
                     </payright123_payment_method_is_active>
                 </observers>
-                
             </payment_method_is_active>
+            <sales_order_shipment_save_after>
+                <observers>
+                    <payright_order_shipment>
+                        <type>singleton</type>
+                        <class>payright/observer</class>
+                        <method>payrightOrderShipment</method>
+                    </payright_order_shipment>
+                </observers>
+            </sales_order_shipment_save_after>
         </events>
     </global>
-
     <adminhtml>
         <events>
             <admin_system_config_changed_section_payment>
@@ -68,33 +77,31 @@
                     </payright_configuration>
                 </observers>
             </admin_system_config_changed_section_payment>
-          
         </events>
     </adminhtml>
-    
+
     <default>
         <payright>
-             <general>
+            <general>
                 <debug>1</debug>
             </general>
             <payovertime_installments>
                 <enable_product_page>1</enable_product_page>
                 <product_page_price_block_selectors><![CDATA[.product-shop .price-box
                 .product-essential .price-box]]></product_page_price_block_selectors>
-
-                <product_page_html_template><![CDATA[<div style="position: relative;font-style: italic;line-height: 1.4;" class="payright-installments"><img src="{skin_url}frontend/base/default/payright/images/payrightlogo_rgb.png" style="width: 76px; vertical-align: middle; display: inline; "></img><a href="#payright-what-is-modal" class="payright-what-is-modal-trigger">Info</a> </div> <style type="text/css">.price-box.ciq_price_box .ciq_view_shipping{margin-top:35px}</style>]]></product_page_html_template>
+                <product_page_html_template>
+                    <![CDATA[<div style="position: relative;font-style: italic;line-height: 1.4;" class="payright-installments"><img src="{skin_url}frontend/base/default/payright/images/payrightlogo_rgb.png" style="width: 76px; vertical-align: middle; display: inline; "></img><a href="#payright-what-is-modal" class="payright-what-is-modal-trigger">Info</a> </div> <style type="text/css">.price-box.ciq_price_box .ciq_view_shipping{margin-top:35px}</style>]]></product_page_html_template>
                 <check_order_total_limits>1</check_order_total_limits>
             </payovertime_installments>
-                 <payovertime_checkout>
-                     <checkout_headline_html_template><![CDATA[
+            <payovertime_checkout>
+                <checkout_headline_html_template><![CDATA[
 <img src="{skin_url}frontend/base/default/payright/images/payrightlogo_rgb.png" class="v-middle" style="height:2.5em" id="payright-logo" />
 <a href="#payright-what-is-modal" class="payright-what-is-modal-trigger">
     What is Payright?
 </a>
                     ]]></checkout_headline_html_template>
-                 </payovertime_checkout>
+            </payovertime_checkout>
         </payright>
-
         <payment>
             <payrightcheckout>
                 <model>payright/Standard</model>
@@ -106,25 +113,22 @@
             </payrightcheckout>
         </payment>
     </default>
-
     <frontend>
         <routers>
-          <payright>
-            <use>standard</use>
-            <args>
-              <module>Payright_Payright</module>
-              <frontName>payright</frontName>
-            </args>
-          </payright>
+            <payright>
+                <use>standard</use>
+                <args>
+                    <module>Payright_Payright</module>
+                    <frontName>payright</frontName>
+                </args>
+            </payright>
         </routers>
-
-<layout>
-    <updates>
-        <payright>
-            <file>payright.xml</file>
-        </payright>
-    </updates>
-</layout>
-
-      </frontend>
+        <layout>
+            <updates>
+                <payright>
+                    <file>payright.xml</file>
+                </payright>
+            </updates>
+        </layout>
+    </frontend>
 </config>
