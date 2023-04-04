@@ -11,8 +11,8 @@
                 <sandbox>
                     <api_url_au>https://sandbox.payright.com/au/checkout/</api_url_au>
                     <api_url_nz>https://sandbox.payright.com/nz/checkout/</api_url_nz>
-                    <web_url_au>https://checkout-dev.payright.com.au/</web_url_au>
-                    <web_url_nz>https://checkout-dev.payright.co.nz/</web_url_nz>
+                    <web_url_au>https://checkout-sandbox.payright.com.au/</web_url_au>
+                    <web_url_nz>https://checkout-sandbox.payright.co.nz/</web_url_nz>
                 </sandbox>
                 <production>
                     <api_url_au>https://api.payright.com/au/checkout/</api_url_au>
