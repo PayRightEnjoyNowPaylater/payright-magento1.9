@@ -152,6 +152,8 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
             // And the unset 'SaveOrderId'
             Mage::getSingleton('checkout/session')->unsSaveOrderId();
 
+            $this->_inactivateQuote();
+
             // Redirect customer to success page
             Mage_Core_Controller_Varien_Action::_redirect('checkout/onepage/success', array('_secure' => true));
             // $this->_redirect('checkout/onepage/success', array('_secure' => true));
@@ -236,6 +238,18 @@ class Payright_Payright_PaymentController extends Mage_Core_Controller_Front_Act
                     // Flag the order as 'cancelled' and save
                     $order->cancel()->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
                 }
+            }
+        }
+    }
+
+    /**
+     * Make the quote inactive for the last orderId
+     */
+    private function _inactivateQuote() {
+        if (Mage::getSingleton('checkout/session')->getLastRealOrderId()) {
+            if ($lastQuoteId = Mage::getSingleton('checkout/session')->getLastQuoteId()) {
+                $quote = Mage::getModel('sales/quote')->load($lastQuoteId);
+                $quote->setIsActive(false)->save();
             }
         }
     }
